@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="Java">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Redis服务器中的数据库都保存在服务器redisServer结构体中的db数组中，每个db都是redisDb结构体">
+<meta name="keywords" content="Java，算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis服务器中的数据库">
+<meta property="og:url" content="http://huangttt18.github.io/2019/03/21/First-Day/index.html">
+<meta property="og:site_name" content="Danile&#39;s blog">
+<meta property="og:description" content="Redis服务器中的数据库都保存在服务器redisServer结构体中的db数组中，每个db都是redisDb结构体">
+<meta property="og:locale" content="Java">
+<meta property="og:updated_time" content="2019-03-21T13:51:21.554Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis服务器中的数据库">
+<meta name="twitter:description" content="Redis服务器中的数据库都保存在服务器redisServer结构体中的db数组中，每个db都是redisDb结构体">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://huangttt18.github.io/2019/03/21/First-Day/">
+
+
+
+
+
+  <title>Redis服务器中的数据库 | Danile's blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="Java">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Danile's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://huangttt18.github.io/2019/03/21/First-Day/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Daniel">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Danile's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis服务器中的数据库</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-03-21T21:47:34+08:00">
+                2019-03-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Redis服务器中的数据库都保存在服务器redisServer结构体中的db数组中，每个db都是redisDb结构体</p>
+<a id="more"></a>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">redisServer</span> &#123;</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    redisDb *db;    <span class="comment">// db数组，保存着Redis服务器中的所有数据库</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">int</span> dbnum;      <span class="comment">// 服务器中的数据库数量，默认为16</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="如何在数据库之间切换？"><a href="#如何在数据库之间切换？" class="headerlink" title="如何在数据库之间切换？"></a>如何在数据库之间切换？</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">SELECT <span class="title">dbNo</span><span class="params">(<span class="number">0</span> - dbnum)</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="Redis客户端"><a href="#Redis客户端" class="headerlink" title="Redis客户端"></a>Redis客户端</h3><p>客户端状态使用redisClient结构的db属性记录客户端当前的目标数据库</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisClient</span> &#123;</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    redisDb *db;    <span class="comment">// 当前正在使用的数据库，指向redisServer.db中的某个元素</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="数据库键空间"><a href="#数据库键空间" class="headerlink" title="数据库键空间"></a>数据库键空间</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisDb</span> &#123;</span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    dict *dict;     <span class="comment">// 数据库键空间，保存数据库中的所有键值对</span></span><br><span class="line">    dict *expires;  <span class="comment">// 过期字典，保存着键的过期时间</span></span><br><span class="line">&#125; redisDb;</span><br></pre></td></tr></table></figure>
+<p>键空间的键即数据库的键，都是字符串对象</p>
+<p>键空间的值即数据库的值，可以为任意Redis支持的对象，如字符串，列表，哈希，集合，有序集合等</p>
+<p>键空间的基本操作，添加，删除，更新，取值</p>
+<p><code>flushdb</code>用于清空整个数据库，<code>randomkey</code>随机返回数据库中的某个键，<code>dbsize</code>返回数据库键数量，<code>exists</code>、<code>rename</code>、<code>keys</code>等命令都是通过操作键空间来完成的</p>
+<p>如果客户端使用<code>watch</code>命令监视某个键，那么服务器在对被监视的键修改后，会将这个键标记为<code>dirty</code>，从而让事务程序知道这个键已经被修改过了，每次修改<code>dirty</code>就+1，达到一定阈值会触发持久化以及复制操作</p>
+<h3 id="设置键的生存时间或过期时间"><a href="#设置键的生存时间或过期时间" class="headerlink" title="设置键的生存时间或过期时间"></a>设置键的生存时间或过期时间</h3><p><code>expire key &lt;ttl:s&gt;</code>将key的生存时间设置为？秒</p>
+<p><code>pexpire key &lt;ttl:ms&gt;将key的生存时间设置为?毫秒</code></p>
+<p><code>expireat key &lt;timestamp:s&gt;</code>将key的生存时间设置为对应的时间戳（秒）</p>
+<p><code>pexpireat key &lt;timestamp:ms&gt;</code>将key的生存时间设置为对应的时间戳（毫秒）</p>
+<p>最终所有命令都会调用<code>pexpireat</code>命令来完成ttl的设置</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">expire</span><span class="params">(key, ttl_in_sec)</span>:</span></span><br><span class="line">    <span class="comment"># 将TTL时间从秒转换为毫秒</span></span><br><span class="line">    ttl_in_ms = sec_to_ms(ttl_in_sec)</span><br><span class="line">    pexpire(key, ttl_in_ms)</span><br><span class="line">    </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">pexpire</span><span class="params">(key, ttl_in_ms)</span>:</span></span><br><span class="line">    <span class="comment"># 获取毫秒以计算当前的Unix时间戳</span></span><br><span class="line">    now_ms = get_current_unix_timestamp_in_ms()</span><br><span class="line">    <span class="comment"># 将当前时间加上TTL，计算出毫秒格式的键过期时间</span></span><br><span class="line">    pexpireat(key, now_ms + ttl_in_ms)</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 将expireat转换为pexpireat</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">expireat</span><span class="params">(key, expire_time_in_sec)</span>:</span></span><br><span class="line">    <span class="comment"># 将过期时间转换为毫秒</span></span><br><span class="line">    expire_time_in_ms = sec_to_ms(expire_time_in_sec)</span><br><span class="line">    pexpireat(key, expire_time_in_ms)</span><br></pre></td></tr></table></figure>
+<p><code>persist</code>移除键的过期时间</p>
+<p><code>ttl</code>计算键剩余的过期时间</p>
+<h3 id="如何判断键是否过期"><a href="#如何判断键是否过期" class="headerlink" title="如何判断键是否过期"></a>如何判断键是否过期</h3><ol>
+<li>检查给定键是否存在过期字典，如果存在，那么取得过期时间</li>
+<li>检查当前UNIX时间戳是否大于键的过期时间，如果是的话，那么键已经过期，反之键未过期</li>
+</ol>
+<h3 id="过期键的删除策略"><a href="#过期键的删除策略" class="headerlink" title="过期键的删除策略"></a>过期键的删除策略</h3><ol>
+<li><p>定时删除，创建一个定时器，当键的过期时间到来时，立即对键进行删除操作。</p>
+<p>当过期键特别多时，一次性删除所有的过期键会占用很大部分的CPU，造成服务器的吞吐量下降，响应时间增加等，即CPU不友好型</p>
+</li>
+<li><p>惰性删除，不直接删除所有过期键，而是每当取得一个键的时候检查其是否过期，如果过期的话就删除该键，否则返回该键</p>
+<p>CPU友好型，但是每次只有对取出的键进行检查和执行删除操作，会遗留非常多的过期键，占用大量内存，即内存不友好型</p>
+</li>
+<li><p>定期删除，每隔一段时间，程序就对数据库进行检查，删除里面的过期键</p>
+<p>每隔一定时间执行一次删除操作，并通过限制删除操作执行的时间和频率来减少操作对CPU的影响，同时有效的减少了因过期键太多而带来的内存浪费</p>
+</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Daniel</p>
+              <p class="site-description motion-element" itemprop="description">记录我的学习路程</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#如何在数据库之间切换？"><span class="nav-number">1.</span> <span class="nav-text">如何在数据库之间切换？</span></a></li></ol><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis客户端"><span class="nav-number"></span> <span class="nav-text">Redis客户端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据库键空间"><span class="nav-number"></span> <span class="nav-text">数据库键空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#设置键的生存时间或过期时间"><span class="nav-number"></span> <span class="nav-text">设置键的生存时间或过期时间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何判断键是否过期"><span class="nav-number"></span> <span class="nav-text">如何判断键是否过期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#过期键的删除策略"><span class="nav-number"></span> <span class="nav-text">过期键的删除策略</span></a></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Daniel</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

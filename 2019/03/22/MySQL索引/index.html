@@ -79,21 +79,21 @@
 
 
 
-<meta name="description" content="索引的好处 提高数据检索的速度，降低数据库IO成本，通过缩小表中需要查询的记录的数目从而加快搜索的速度 降低数据排序的成本，降低CPU消耗，索引查询快的一个原因是因为索引会先将数据排好序  索引的缺点 索引会占用存储空间，因为索引的本质是一张记录了主键与索引字段的表，通常以文件形式存储在硬盘中 索引的使用会降低表的更新速度，一旦表的数据发生了变化，对应的索引也需要一起变更  索引类型 普通索引，">
+<meta name="description" content="索引的好处 提高数据检索的速度，降低数据库IO成本，通过缩小表中需要查询的记录的数目从而加快搜索的速度 降低数据排序的成本，降低CPU消耗，索引查询快的一个原因是因为索引会先将数据排好序">
 <meta name="keywords" content="MySQL,索引">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL索引">
 <meta property="og:url" content="http://huangttt18.github.io/2019/03/22/MySQL索引/index.html">
 <meta property="og:site_name" content="Daniel&#39;s Blog">
-<meta property="og:description" content="索引的好处 提高数据检索的速度，降低数据库IO成本，通过缩小表中需要查询的记录的数目从而加快搜索的速度 降低数据排序的成本，降低CPU消耗，索引查询快的一个原因是因为索引会先将数据排好序  索引的缺点 索引会占用存储空间，因为索引的本质是一张记录了主键与索引字段的表，通常以文件形式存储在硬盘中 索引的使用会降低表的更新速度，一旦表的数据发生了变化，对应的索引也需要一起变更  索引类型 普通索引，">
+<meta property="og:description" content="索引的好处 提高数据检索的速度，降低数据库IO成本，通过缩小表中需要查询的记录的数目从而加快搜索的速度 降低数据排序的成本，降低CPU消耗，索引查询快的一个原因是因为索引会先将数据排好序">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://static.iocoder.cn/84ea509fa091a10add4e7614e6cb37db">
 <meta property="og:image" content="http://static.iocoder.cn/259d196856a231aff5e3cf1505848af4">
 <meta property="og:image" content="http://static.iocoder.cn/d49d260fc1eb8f992df0401b70d70e3d">
-<meta property="og:updated_time" content="2019-03-22T01:48:00.087Z">
+<meta property="og:updated_time" content="2019-03-22T01:56:45.010Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL索引">
-<meta name="twitter:description" content="索引的好处 提高数据检索的速度，降低数据库IO成本，通过缩小表中需要查询的记录的数目从而加快搜索的速度 降低数据排序的成本，降低CPU消耗，索引查询快的一个原因是因为索引会先将数据排好序  索引的缺点 索引会占用存储空间，因为索引的本质是一张记录了主键与索引字段的表，通常以文件形式存储在硬盘中 索引的使用会降低表的更新速度，一旦表的数据发生了变化，对应的索引也需要一起变更  索引类型 普通索引，">
+<meta name="twitter:description" content="索引的好处 提高数据检索的速度，降低数据库IO成本，通过缩小表中需要查询的记录的数目从而加快搜索的速度 降低数据排序的成本，降低CPU消耗，索引查询快的一个原因是因为索引会先将数据排好序">
 <meta name="twitter:image" content="http://static.iocoder.cn/84ea509fa091a10add4e7614e6cb37db">
 
 
@@ -397,11 +397,11 @@
       
 
       
-        <a id="more"></a>
-<h3 id="索引的好处"><a href="#索引的好处" class="headerlink" title="索引的好处"></a>索引的好处</h3><ol>
+        <h3 id="索引的好处"><a href="#索引的好处" class="headerlink" title="索引的好处"></a>索引的好处</h3><ol>
 <li>提高数据检索的速度，降低数据库IO成本，通过缩小表中需要查询的记录的数目从而加快搜索的速度</li>
 <li>降低数据排序的成本，降低CPU消耗，索引查询快的一个原因是因为索引会先将数据排好序</li>
 </ol>
+<a id="more"></a>
 <h3 id="索引的缺点"><a href="#索引的缺点" class="headerlink" title="索引的缺点"></a>索引的缺点</h3><ol>
 <li>索引会占用存储空间，因为索引的本质是一张记录了主键与索引字段的表，通常以文件形式存储在硬盘中</li>
 <li>索引的使用会降低表的更新速度，一旦表的数据发生了变化，对应的索引也需要一起变更</li>
@@ -630,7 +630,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -641,7 +641,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -652,7 +652,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-count">17</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -719,7 +719,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">10.1k</span>
+    <span title="Site words total count">12k</span>
   
 </div>
 

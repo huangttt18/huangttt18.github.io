@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="MySQL,事务,">
+  <meta name="keywords" content="JVM,GC,垃圾回收器,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="事务，就是对一系列的数据库操作进行统一提交或回滚操作，要么全部成功，要么全部失败，不允许部分成功部分失败的情况">
-<meta name="keywords" content="MySQL,事务">
+<meta name="description" content="Java默认给我们提供了一些垃圾收集器，在不同的情况下使用不同的收集器能更好的提高程序的工作效率和垃圾回收的效率">
+<meta name="keywords" content="JVM,GC,垃圾回收器">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MySQL事务">
-<meta property="og:url" content="http://huangttt18.github.io/2019/03/22/MySQL事务/index.html">
+<meta property="og:title" content="垃圾收集器">
+<meta property="og:url" content="http://huangttt18.github.io/2019/03/22/垃圾收集器/index.html">
 <meta property="og:site_name" content="Daniel&#39;s Blog">
-<meta property="og:description" content="事务，就是对一系列的数据库操作进行统一提交或回滚操作，要么全部成功，要么全部失败，不允许部分成功部分失败的情况">
+<meta property="og:description" content="Java默认给我们提供了一些垃圾收集器，在不同的情况下使用不同的收集器能更好的提高程序的工作效率和垃圾回收的效率">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-22T01:34:53.635Z">
+<meta property="og:updated_time" content="2019-03-22T01:41:26.534Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MySQL事务">
-<meta name="twitter:description" content="事务，就是对一系列的数据库操作进行统一提交或回滚操作，要么全部成功，要么全部失败，不允许部分成功部分失败的情况">
+<meta name="twitter:title" content="垃圾收集器">
+<meta name="twitter:description" content="Java默认给我们提供了一些垃圾收集器，在不同的情况下使用不同的收集器能更好的提高程序的工作效率和垃圾回收的效率">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://huangttt18.github.io/2019/03/22/MySQL事务/">
+  <link rel="canonical" href="http://huangttt18.github.io/2019/03/22/垃圾收集器/">
 
 
 
 
 
-  <title>MySQL事务 | Daniel's Blog</title>
+  <title>垃圾收集器 | Daniel's Blog</title>
   
 
 
@@ -273,7 +273,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://huangttt18.github.io/2019/03/22/MySQL事务/">
+    <link itemprop="mainEntityOfPage" href="http://huangttt18.github.io/2019/03/22/垃圾收集器/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Daniel">
@@ -290,7 +290,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">MySQL事务</h1>
+          <h1 class="post-title" itemprop="name headline">垃圾收集器</h1>
         
 
         <div class="post-meta">
@@ -302,7 +302,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-22T09:15:00+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-22T09:39:00+08:00">
                 2019-03-22
               </time>
             
@@ -325,8 +325,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
+                  <a href="/categories/虚拟机/" itemprop="url" rel="index">
+                    <span itemprop="name">虚拟机</span>
                   </a>
                 </span>
 
@@ -356,7 +356,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  599
+                  1.6k
                 </span>
               
 
@@ -372,7 +372,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  2
+                  5
                 </span>
               
             </div>
@@ -393,32 +393,61 @@
       
 
       
-        <p>事务，就是对一系列的数据库操作进行统一提交或回滚操作，要么全部成功，要么全部失败，不允许部分成功部分失败的情况</p>
+        <p>Java默认给我们提供了一些垃圾收集器，在不同的情况下使用不同的收集器能更好的提高程序的工作效率和垃圾回收的效率</p>
 <a id="more"></a>
-<h3 id="事务的特性"><a href="#事务的特性" class="headerlink" title="事务的特性"></a>事务的特性</h3><h5 id="ACID"><a href="#ACID" class="headerlink" title="ACID"></a>ACID</h5><ul>
-<li><p>A：原子性，一个事务（transaction）中的所有操作，或者全部完成，或者全部不完成，不会结束在中间某个环节。事务在执行过程中发生错误，会被恢复（Rollback）到事务开始前的状态</p>
+<h3 id="Stop-The-World"><a href="#Stop-The-World" class="headerlink" title="Stop-The-World"></a>Stop-The-World</h3><ul>
+<li>JVM执行GC时，暂停其他所有的线程，直到GC完成</li>
+<li>所有的GC都会触发STW</li>
+</ul>
+<h5 id="SafePoint"><a href="#SafePoint" class="headerlink" title="SafePoint"></a>SafePoint</h5><ul>
+<li>分析过程中对象引用关系不会发生变化的点</li>
+<li>以”是否具有让程序长时间执行的特征“来选定安全点，如方法调用、循环跳转、异常跳转</li>
+</ul>
+<h3 id="常见的垃圾收集器"><a href="#常见的垃圾收集器" class="headerlink" title="常见的垃圾收集器"></a>常见的垃圾收集器</h3><ul>
+<li>新生代<ul>
+<li>Serial，单线程收集，收集时必须暂停其他所有工作线程，Client模式下的默认新生代收集器</li>
+<li>ParNew，多线程版本的Serial收集器，在多核情况下比较有优势，Server模式下的首选新生代收集器</li>
+<li>Parallel Scavenge，吞吐量优先收集器，使用复制算法，Server模式下默认的新生代收集器</li>
+</ul>
 </li>
-<li><p>C：一致性，在事务开始之前和事务结束以后，数据库的完整性没有被破坏。</p>
-</li>
-<li><p>I：隔离性，数据库允许多个并发事务同时对其数据进行读写和修改的能力，隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致。事务分为四种隔离级别</p>
-</li>
-<li><p>D：持久性，事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失。</p>
+<li>老年代<ul>
+<li>Serial Old，Serial收集器的老年代版本，使用标记整理算法</li>
+<li>Parallel Old，Parallel收集器的老年代版本，使用标记整理算法</li>
+<li>CMS，标记清除算法</li>
+</ul>
 </li>
 </ul>
-<h4 id="事务的并发操作"><a href="#事务的并发操作" class="headerlink" title="事务的并发操作"></a>事务的并发操作</h4><ul>
-<li><p>事务的并发操作会导致三个问题：</p>
-<ol>
-<li>脏读，事务A读取了事务B修改的数据，然后事务B进行回滚操作，那么A读取到的数据就是脏数据</li>
-<li>不可重复读，事务A多次读取同一数据，在这个过程中事务B修改了该数据，并进行提交，导致事务A多次读取的同一数据结果不一致</li>
-<li>幻读，事务A修改表中所有数据的某一个字段的值，在这个过程中，事务B新增了一条没有被修改过字段的数据，当事务A完成之后发现还有数据没有被修改，即幻读</li>
-</ol>
+<h4 id="CMS收集器"><a href="#CMS收集器" class="headerlink" title="CMS收集器"></a>CMS收集器</h4><ul>
+<li>CMS（Concurrent Mark Sweep）是一款能够支持并发（即用户线程和垃圾回收线程可并发运行）、低停顿（Stop-The-World时间短）的垃圾收集器，主要用在老年代中。</li>
+</ul>
+<h5 id="CMS进行垃圾回收主要有以下4个步骤："><a href="#CMS进行垃圾回收主要有以下4个步骤：" class="headerlink" title="CMS进行垃圾回收主要有以下4个步骤："></a>CMS进行垃圾回收主要有以下4个步骤：</h5><ul>
+<li>初始标记，这个阶段只是简单的标记一下GC Root能够直接关联到的对象，速度很快，但也会触发STW</li>
+<li>并发标记，这个阶段就是进行GC Root Tracing的过程，也会触发STW</li>
+<li>重新标记，这个阶段是为了修正在CMS收集器进行并发标记过程中因为用户线程还在运行而导致标记产生变动的那一部分对象的标记记录，会触发STW，停顿时间较初始标记长，较并发标记短</li>
+<li>并发清除，清除被标记的对象，可以与用户线程并发执行</li>
+</ul>
+<h5 id="CMS收集器的缺点："><a href="#CMS收集器的缺点：" class="headerlink" title="CMS收集器的缺点："></a>CMS收集器的缺点：</h5><ul>
+<li>对CPU资源过于敏感，在与用户线程并发的阶段会占用一部分的CPU资源，因而导致程序运行变慢，总吞吐量降低</li>
+<li>无法处理浮动垃圾，在CMS进行并发清理期间由于用户线程也在运行，会产生新的垃圾，而这些垃圾在该次回收的过程中无法被清除，同时还需要给用户线程预留一定的内存空间，如果在CMS运行期间预留内存无法满足程序需要，就会出现<code>Concurrent Mode Failure</code>，此时JVM会暂时使用<code>Serial Old</code>来进行老年代的垃圾收集，同时程序停顿的时间就变长了，可以通过<code>-XX:CMSInitiatingOccupancyFrantion</code>参数来调整触发GC的内存空间百分比</li>
+<li>因为CMS使用的是<code>Mark Sweep</code>方式进行垃圾收集，因此在清理之后会产生大量的内存碎片，如果内存碎片过多，那么可能导致大的对象无法被分配到老年代，因而触发下一次Full GC，我们可以通过JVM参数<code>-XX:+UseCompactAtFullCollection</code>（默认开启）来控制，当快要触发Full GC时进行内存碎片的合并整理，此过程无法与用户线程并发，停顿时间变长。还可以通过JVM参数<code>-XX:CMSFullGCsBeforeCompaction</code>（默认为0）来设置经过N次不带压缩的Full GC后来一次带压缩的Full GC</li>
+</ul>
+<h4 id="G1收集器"><a href="#G1收集器" class="headerlink" title="G1收集器"></a>G1收集器</h4><h5 id="G1（Grabage-First）有如下几个特点："><a href="#G1（Grabage-First）有如下几个特点：" class="headerlink" title="G1（Grabage-First）有如下几个特点："></a>G1（Grabage-First）有如下几个特点：</h5><ul>
+<li><p>并行与并发，G1能够充分利用多核、多CPU的优势来缩短STW时间</p>
+</li>
+<li><p>分代收集</p>
+</li>
+<li><p>空间整合，G1整体是基于Mark Compact算法来进行垃圾收集的，在两个Region之间，使用Coping算法来进行垃圾收集，意味着GC过后不会产生内存碎片，即也不会导致因为大对象分配内存时内存空间不足而导致下一次GC提前触发</p>
+</li>
+<li><p>可预测的停顿，G1能够建立可以预测的停顿时间模型，让使用者明确指定一个长度为Mms的时间片段内，消耗在垃圾收集上的时间不能超过Nms。</p>
+<p>在使用G1收集器时，Java堆内存布局与其他收集器不同，它将整个Java堆划分为N个大小相等的Region，保留新生代、老年代的概念，但是新生代和老年代不再是物理隔离的了，它通过跟踪各个Region中的垃圾堆的价值大小（回收所获得的内存空间大小以及回收所需时间的经验值）在后台维护一个优先列表，每次优先回收价值最大的Region</p>
+<p>Region不是孤立的，一个对象可以被任意Region中的其他对象引用。在G1中，Region之间的对象引用以及其他收集器中新生代和老年代之间的对象引用，由JVM使用Remembered Set来避免进行全堆扫描，G1中每个Region都维护一个与之对应的Remembered Set，如果JVM发现程序正在对Reference类型的数据进行写操作时，会产生一个Write Barrier暂时中断写操作，检查Reference引用的对象是否处于不同的Region中，如果是，便通过CardTable把相关引用信息记录到被引用对象所属Region的Remembered Set中，在进行GC时，在GC Root的枚举范围中加入Remembered Set即可保证不对全堆进行扫描也不会有遗漏</p>
 </li>
 </ul>
-<h3 id="事务的四种隔离级别"><a href="#事务的四种隔离级别" class="headerlink" title="事务的四种隔离级别"></a>事务的四种隔离级别</h3><ul>
-<li>READ UNCOMMITED：事务中的修改即使没有被提交，对其他事务也是可见的，会导致脏读、不可重复读和幻读</li>
-<li>READ COMMITED：事务从开始直到提交之前，所做的任何修改对其他事务都是不可见的，会导致不可重复读和幻读</li>
-<li>REPEATABLE READ：一个事务按相同的查询条件读取以前检索过的数据，其他事务插入了满足其查询条件的新数据。产生幻行。导致幻读（MySQL默认的事务隔离级别）</li>
-<li>SERIALIZABLE：强制事务串行执行</li>
+<h5 id="G1收集器的执行过程："><a href="#G1收集器的执行过程：" class="headerlink" title="G1收集器的执行过程："></a>G1收集器的执行过程：</h5><ul>
+<li>初始标记，简单标记下GC Root能直接关联到的对象</li>
+<li>并发标记，进行可达性分析，找出存活对象</li>
+<li>最终标记，修正在GC运行时因用户线程运行而导致标记变化的那部分记录，JVM将这一期间（并发标记）的对象变化记录在Remembered Set Logs中</li>
+<li>筛选回收，把Remembered Set Logs中的数据合并到Remembered Set中，然后根据各个Region的价值大小来指定回收计划，需要STW，但是可以并行执行</li>
 </ul>
 
       
@@ -437,9 +466,11 @@
       
         <div class="post-tags">
           
-            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
           
-            <a href="/tags/事务/" rel="tag"># 事务</a>
+            <a href="/tags/GC/" rel="tag"># GC</a>
+          
+            <a href="/tags/垃圾回收器/" rel="tag"># 垃圾回收器</a>
           
         </div>
       
@@ -452,8 +483,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/03/22/Linux常用命令总结/" rel="next" title="Linux常用命令总结">
-                <i class="fa fa-chevron-left"></i> Linux常用命令总结
+              <a href="/2019/03/22/Java中的垃圾回收机制/" rel="next" title="Java中的垃圾回收机制">
+                <i class="fa fa-chevron-left"></i> Java中的垃圾回收机制
               </a>
             
           </div>
@@ -462,8 +493,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/03/22/MySQL索引/" rel="prev" title="MySQL索引">
-                MySQL索引 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/03/22/Java程序运行时数据区/" rel="prev" title="Java程序运行时数据区">
+                Java程序运行时数据区 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -596,7 +627,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#事务的特性"><span class="nav-number">1.</span> <span class="nav-text">事务的特性</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#ACID"><span class="nav-number">1.0.1.</span> <span class="nav-text">ACID</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#事务的并发操作"><span class="nav-number">1.1.</span> <span class="nav-text">事务的并发操作</span></a></li></ol><li class="nav-item nav-level-3"><a class="nav-link" href="#事务的四种隔离级别"><span class="nav-number">2.</span> <span class="nav-text">事务的四种隔离级别</span></a></li></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Stop-The-World"><span class="nav-number">1.</span> <span class="nav-text">Stop-The-World</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#SafePoint"><span class="nav-number">1.0.1.</span> <span class="nav-text">SafePoint</span></a></li></ol></li></ol><li class="nav-item nav-level-3"><a class="nav-link" href="#常见的垃圾收集器"><span class="nav-number">2.</span> <span class="nav-text">常见的垃圾收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#CMS收集器"><span class="nav-number">2.1.</span> <span class="nav-text">CMS收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#CMS进行垃圾回收主要有以下4个步骤："><span class="nav-number">2.1.1.</span> <span class="nav-text">CMS进行垃圾回收主要有以下4个步骤：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#CMS收集器的缺点："><span class="nav-number">2.1.2.</span> <span class="nav-text">CMS收集器的缺点：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#G1收集器"><span class="nav-number">2.2.</span> <span class="nav-text">G1收集器</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#G1（Grabage-First）有如下几个特点："><span class="nav-number">2.2.1.</span> <span class="nav-text">G1（Grabage-First）有如下几个特点：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#G1收集器的执行过程："><span class="nav-number">2.2.2.</span> <span class="nav-text">G1收集器的执行过程：</span></a></li></ol></li></ol></li></div>
             
 
           </div>

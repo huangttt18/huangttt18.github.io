@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Thread,线程安全,线程的状态,线程池,synchronized,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="线程的创建方式 Thread实现了Runnable接口，使得run方法支持多线程 因为类的单一继承原则，推荐使用实现Runnable接口的方式来实现多线程 使用线程池ExecutorServer来创建并管理线程  线程池Executor框架Executor的结构 任务，被执行任务需要实现的接口，Runnable，Callable 任务的执行，Executor和继承Executor接口的Execut">
+<meta name="keywords" content="Thread,线程安全,线程的状态,线程池,synchronized">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java中的线程">
+<meta property="og:url" content="http://huangttt18.github.io/2019/03/22/Java中的线程/index.html">
+<meta property="og:site_name" content="Daniel&#39;s Blog">
+<meta property="og:description" content="线程的创建方式 Thread实现了Runnable接口，使得run方法支持多线程 因为类的单一继承原则，推荐使用实现Runnable接口的方式来实现多线程 使用线程池ExecutorServer来创建并管理线程  线程池Executor框架Executor的结构 任务，被执行任务需要实现的接口，Runnable，Callable 任务的执行，Executor和继承Executor接口的Execut">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://huangttt18.github.io/Users/jt0930517/Library/Application%20Support/typora-user-images/image-20190310170932036.png">
+<meta property="og:updated_time" content="2019-03-22T01:29:02.305Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java中的线程">
+<meta name="twitter:description" content="线程的创建方式 Thread实现了Runnable接口，使得run方法支持多线程 因为类的单一继承原则，推荐使用实现Runnable接口的方式来实现多线程 使用线程池ExecutorServer来创建并管理线程  线程池Executor框架Executor的结构 任务，被执行任务需要实现的接口，Runnable，Callable 任务的执行，Executor和继承Executor接口的Execut">
+<meta name="twitter:image" content="http://huangttt18.github.io/Users/jt0930517/Library/Application%20Support/typora-user-images/image-20190310170932036.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://huangttt18.github.io/2019/03/22/Java中的线程/">
+
+
+
+
+
+  <title>Java中的线程 | Daniel's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Daniel's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-github">
+          <a href="/github/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-github"></i> <br>
+            
+            Github
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://huangttt18.github.io/2019/03/22/Java中的线程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Daniel">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Daniel's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java中的线程</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-22T09:23:00+08:00">
+                2019-03-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/多线程/" itemprop="url" rel="index">
+                    <span itemprop="name">多线程</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/多线程/Java/" itemprop="url" rel="index">
+                    <span itemprop="name">Java</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/多线程/Java/线程池/" itemprop="url" rel="index">
+                    <span itemprop="name">线程池</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2.5k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="线程的创建方式"><a href="#线程的创建方式" class="headerlink" title="线程的创建方式"></a>线程的创建方式</h3><ul>
+<li>Thread实现了Runnable接口，使得run方法支持多线程</li>
+<li>因为类的单一继承原则，推荐使用实现Runnable接口的方式来实现多线程</li>
+<li>使用线程池ExecutorServer来创建并管理线程</li>
+</ul>
+<h3 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h3><h4 id="Executor框架"><a href="#Executor框架" class="headerlink" title="Executor框架"></a>Executor框架</h4><h5 id="Executor的结构"><a href="#Executor的结构" class="headerlink" title="Executor的结构"></a>Executor的结构</h5><ul>
+<li>任务，被执行任务需要实现的接口，Runnable，Callable</li>
+<li>任务的执行，Executor和继承Executor接口的ExecutorService（Implements：ThreadPoolExecutor，ScheduledThreadPoolExecutor）接口</li>
+<li>异步计算的结果，Future接口和实现Future接口的FutureTask</li>
+</ul>
+<h5 id="Executor的组成成员"><a href="#Executor的组成成员" class="headerlink" title="Executor的组成成员"></a>Executor的组成成员</h5><ul>
+<li><p>Executor，Executor框架的基础，将任务的提交与执行分离</p>
+</li>
+<li><p>ThreadPoolExecutor，用于执行被提交的任务</p>
+<p>corePoolSize：核心线程池大小</p>
+<p>maximumPool：最大线程池大小</p>
+<p>BlockingQueue：暂时保存任务的阻塞队列</p>
+<p>RejectedExecutionHandler：当ThreadPoolExecutor被关闭或者达到了最大线程池大小并且工作队列已满的情况下，execute()方法将要调用的Handler</p>
+<ul>
+<li>FixedThreadPool<ul>
+<li>创建固定数量的线程来执行任务，适用于负载较重的服务器</li>
+</ul>
+</li>
+<li>CachedThreadPool<ul>
+<li>可以创建无限制数量的线程来执行短期异步任务，适用于负载较轻的服务器</li>
+</ul>
+</li>
+<li>SingleThreadPoolExecutor<ul>
+<li>创建单个线程来顺序的执行各个任务，并确保不会有多线程并发的情况发生</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>ScheduledThreadPoolExecutor，用于周期性的执行被提交的任务</p>
+<ul>
+<li>ScheduledThreadExecutor<ul>
+<li>创建多个后台线程执行周期性任务</li>
+</ul>
+</li>
+<li>SingleThreadScheduledExecutor<ul>
+<li>创建单个后台线程执行周期性任务，并保证各个任务的顺序执行</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Future、FutureTask，异步计算的结果</p>
+</li>
+<li><p>Runnable、Callable，被执行任务需要实现的接口</p>
+</li>
+</ul>
+<h3 id="线程的状态"><a href="#线程的状态" class="headerlink" title="线程的状态"></a>线程的状态</h3><p>通过查看Thread的源码，我们可以看到Thread拥有6种状态</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> State &#123;</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 新建，线程被创建但是还没有启动</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        NEW,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 就绪，线程处于可以运行的状态，或者在等待CPU的时间切片的分配</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        RUNNABLE,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 阻塞，线程在等在获取排他锁</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        BLOCKED,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 无限等待，线程进入无限等待状态，此时线程不会被分配CPU时间片，需要被显示唤醒</span></span><br><span class="line"><span class="comment">         * 可以通过未设置超时时间的Object.wait()方法进入waiting状态</span></span><br><span class="line"><span class="comment">         * 或者通过未设置超时时间的Thread.join()方法进入waiting状态</span></span><br><span class="line"><span class="comment">         * 或者通过LockSupport.park()方法进入waiting状态</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        WAITING,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 有限等待，线程进入带有超时时间的等待状态，</span></span><br><span class="line"><span class="comment">         * 可以通过设置了Timeout的Object.wait()方法进入此状态</span></span><br><span class="line"><span class="comment">         * 或者通过设置了Timeout的Thread.join()方法进入此状态</span></span><br><span class="line"><span class="comment">         * 或者通过LockSupport.parkNanos()、LockSupport.parkUtil()方法进入此状态</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        TIMED_WAITING,</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 终止，线程执行完毕或被强制中断，进入此状态后，线程不能再次启动，否则会报错，java.lang.IllegalThreadStateException</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        TERMINATED;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="为什么会有线程安全问题"><a href="#为什么会有线程安全问题" class="headerlink" title="为什么会有线程安全问题"></a>为什么会有线程安全问题</h3><ul>
+<li>存在临界资源，也就是共享资源</li>
+<li>存在多个线程共同操作这些临界资源</li>
+</ul>
+<p>为了解决线程安全问题，必须限制在同一时刻有且仅有一个线程能够操作这些临界资源，其他线程必须等到该线程处理完毕之后才能对临界资源进行处理</p>
+<h3 id="start-与run-的区别"><a href="#start-与run-的区别" class="headerlink" title="start()与run()的区别"></a>start()与run()的区别</h3><p>start()</p>
+<ul>
+<li>调用JVM_StartThread方法创建线程并启动</li>
+</ul>
+<p>run()</p>
+<ul>
+<li>普通方法，用于执行线程的业务逻辑</li>
+</ul>
+<h3 id="sleep-与wait-的区别"><a href="#sleep-与wait-的区别" class="headerlink" title="sleep()与wait()的区别"></a>sleep()与wait()的区别</h3><ul>
+<li>sleep是Thread类下的方法，wait是Object下的方法</li>
+<li>sleep能在任何地方使用，wait方法只能在synchronized方法或者synchronized块中使用</li>
+<li>sleep不释放锁，仅让出CPU，wait释放锁，同时让出CPU</li>
+</ul>
+<h3 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h3><ul>
+<li>如果多个线程同时访问一个对象的Synchronized method或者Synchronized block时，有且仅有一个线程能够同时访问这个method或block</li>
+<li>如果多个线程同时访问不同对象的Synchronized method或者Synchronized block时，互不干扰</li>
+<li>如果多个线程同时访问一个类的Synchronized static method或者Synchronized(类.class)时，有且仅有一个线程能够访问这个method或block</li>
+<li>如果多个线程同时访问不同类的Synchronized static method或者Synchronized(类.class)时，互不干扰</li>
+<li>如果两个或以上线程分别访问类的静态代码块和非静态代码块，两者互不干扰</li>
+</ul>
+<h3 id="实现Synchronized基础"><a href="#实现Synchronized基础" class="headerlink" title="实现Synchronized基础"></a>实现Synchronized基础</h3><h5 id="Java对象"><a href="#Java对象" class="headerlink" title="Java对象"></a>Java对象</h5><ul>
+<li><strong>对象头</strong><ul>
+<li>Mark Word，存储hashcode，分带年龄，锁类型，锁信息等</li>
+<li>Class Metadata Address，存储类的元数据，JVM通过它确认对象属于哪个类</li>
+</ul>
+</li>
+<li>实例数据</li>
+<li>对齐填充</li>
+</ul>
+<h5 id="Monitor"><a href="#Monitor" class="headerlink" title="Monitor"></a>Monitor</h5><p>Monitor部分源码如下</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// initialize the monitor, exception the semaphore, all other fields</span></span><br><span class="line">  <span class="comment">// are simple integers or pointers</span></span><br><span class="line">  ObjectMonitor() &#123;</span><br><span class="line">    _header       = <span class="literal">NULL</span>;</span><br><span class="line">    _count        = <span class="number">0</span>;			<span class="comment">// 每当有对象获取到Monitor之后，_count ++</span></span><br><span class="line">    _waiters      = <span class="number">0</span>,</span><br><span class="line">    _recursions   = <span class="number">0</span>;</span><br><span class="line">    _object       = <span class="literal">NULL</span>;		</span><br><span class="line">    _owner        = <span class="literal">NULL</span>;		</span><br><span class="line">    _WaitSet      = <span class="literal">NULL</span>;		<span class="comment">// 等待池,处于wait状态的线程，会被添加到此</span></span><br><span class="line">    _WaitSetLock  = <span class="number">0</span> ;</span><br><span class="line">    _Responsible  = <span class="literal">NULL</span> ;</span><br><span class="line">    _succ         = <span class="literal">NULL</span> ;</span><br><span class="line">    _cxq          = <span class="literal">NULL</span> ;</span><br><span class="line">    FreeNext      = <span class="literal">NULL</span> ;</span><br><span class="line">    _EntryList    = <span class="literal">NULL</span> ;		<span class="comment">// 处于block状态的线程会被添加到此</span></span><br><span class="line">    _SpinFreq     = <span class="number">0</span> ;</span><br><span class="line">    _SpinClock    = <span class="number">0</span> ;</span><br><span class="line">    OwnerIsThread = <span class="number">0</span> ;</span><br><span class="line">    _previous_owner_tid = <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>多个线程同时竞争一把锁时，线程会被添加到entryList中</li>
+<li>一旦有一个线程获取到了锁，那么该线程就会被添加到waitSet中，并且此时对象锁的_count属性被设置为1，owner设置为该线程，其他线程不可再获取该锁</li>
+<li>当该线程释放锁之后，_count属性-1，owner设置为NULL，其他线程可以继续竞争获取锁资源</li>
+<li>Monitor对象存在于每个Java对象的对象头中，因此Java中所有对象都可以作为锁</li>
+</ul>
+<p>具体流程如下图</p>
+<p><img src="/Users/jt0930517/Library/Application Support/typora-user-images/image-20190310170932036.png" alt="image-20190310170932036"></p>
+<p>我们通过具体的例子来看一下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.javabasic.thread;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Author</span> Created by Daniel</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SyncBlockAndMethod</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">syncBlock</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">"Hello"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">SyncMethod</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Hello 2"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以下是通过javap反编译之后的代码，我们仅看两个方法的部分</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">syncBlock</span><span class="params">()</span></span>;</span><br><span class="line">  descriptor: ()V</span><br><span class="line">  flags: ACC_PUBLIC</span><br><span class="line">  Code:</span><br><span class="line">    stack=<span class="number">2</span>, locals=<span class="number">3</span>, args_size=<span class="number">1</span></span><br><span class="line">       <span class="number">0</span>: aload_0</span><br><span class="line">       <span class="number">1</span>: dup</span><br><span class="line">       <span class="number">2</span>: astore_1</span><br><span class="line">       <span class="number">3</span>: monitorenter					  <span class="comment">/* 通过monitorenter指令获取到monitor锁，设置_count属性为1，获取锁之后，该线程可以重入该锁 */</span> </span><br><span class="line">       4: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">       7: ldc           #3                  // String Hello</span><br><span class="line">       9: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">      <span class="number">12</span>: aload_1</span><br><span class="line">      <span class="number">13</span>: monitorexit						  <span class="comment">/* 通过monitorexit指令释放monitor锁，设置_count属性为0 */</span></span><br><span class="line">      <span class="number">14</span>: goto          <span class="number">22</span></span><br><span class="line">      <span class="number">17</span>: astore_2</span><br><span class="line">      <span class="number">18</span>: aload_1</span><br><span class="line">      <span class="number">19</span>: monitorexit						  <span class="comment">/* 如果发生异常退出，那么异常处理器也会执行monitorexit指令来释放锁，防止死锁等情况的发生 */</span></span><br><span class="line">      <span class="number">20</span>: aload_2</span><br><span class="line">      <span class="number">21</span>: athrow</span><br><span class="line">      <span class="number">22</span>: <span class="keyword">return</span></span><br><span class="line">    Exception table:</span><br><span class="line">       from    to  target type</span><br><span class="line">           <span class="number">4</span>    <span class="number">14</span>    <span class="number">17</span>   any</span><br><span class="line">          <span class="number">17</span>    <span class="number">20</span>    <span class="number">17</span>   any</span><br><span class="line">    LineNumberTable:</span><br><span class="line">      line <span class="number">9</span>: <span class="number">0</span></span><br><span class="line">      line <span class="number">10</span>: <span class="number">4</span></span><br><span class="line">      line <span class="number">11</span>: <span class="number">12</span></span><br><span class="line">      line <span class="number">12</span>: <span class="number">22</span></span><br><span class="line">    StackMapTable: number_of_entries = <span class="number">2</span></span><br><span class="line">      frame_type = <span class="number">255</span> <span class="comment">/* full_frame */</span></span><br><span class="line">        offset_delta = <span class="number">17</span></span><br><span class="line">        locals = [ class com/javabasic/thread/SyncBlockAndMethod, class java/lang/Object ]</span><br><span class="line">        stack = [ class java/lang/Throwable ]</span><br><span class="line">      frame_type = <span class="number">250</span> <span class="comment">/* chop */</span></span><br><span class="line">        offset_delta = <span class="number">4</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">SyncMethod</span><span class="params">()</span></span>;</span><br><span class="line">  descriptor: ()V</span><br><span class="line">  flags: ACC_PUBLIC, ACC_SYNCHRONIZED		  <span class="comment">/* 方法级别的同步是隐式同步的，如果方法被设置ACC_SYNCHRONIZED访问标志，那么执行线程将会持有该对象的monitor */</span></span><br><span class="line">  Code:</span><br><span class="line">    stack=<span class="number">2</span>, locals=<span class="number">1</span>, args_size=<span class="number">1</span></span><br><span class="line">       0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;</span><br><span class="line">       3: ldc           #5                  // String Hello 2</span><br><span class="line">       5: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</span><br><span class="line">       <span class="number">8</span>: <span class="keyword">return</span></span><br><span class="line">    LineNumberTable:</span><br><span class="line">      line <span class="number">15</span>: <span class="number">0</span></span><br><span class="line">      line <span class="number">16</span>: <span class="number">8</span></span><br></pre></td></tr></table></figure>
+<p>早期Java中的synchronized是重量级锁，基于Mutex Lock实现，在获取锁的线程之间切换时要从用户态转换到内核态，开销较大</p>
+<h5 id="自旋锁"><a href="#自旋锁" class="headerlink" title="自旋锁"></a>自旋锁</h5><p>在大多数情况下，线程只需要等待很短的时间就可以获取到锁资源，因为这种短时间的等待而进行线程切换的消耗是不划算的，因此自旋锁出现了。</p>
+<p>自旋锁通过让线程进入忙循环等待锁的释放，而不让度CPU，以此避免线程切换带来的高消耗</p>
+<p>但是，如果锁被其他线程占用的时间较长，那么自旋锁的使用又会带来更多的消耗</p>
+<p>所以自适应自旋锁出现了</p>
+<h5 id="自适应自旋锁"><a href="#自适应自旋锁" class="headerlink" title="自适应自旋锁"></a>自适应自旋锁</h5><ul>
+<li>自适应自旋锁的自旋次数不再固定</li>
+<li>JVM通过分析前一次在该锁等待过程中自旋的时间已经锁的拥有者的状态来决定自旋的时间以及是否自旋</li>
+</ul>
+<h5 id="锁消除"><a href="#锁消除" class="headerlink" title="锁消除"></a>锁消除</h5><p>Java代码通过JIT编译时，会对运行上下文进行扫描，去除不可能存在共享资源竞争的锁，节省无意义的锁请求时间</p>
+<h5 id="锁粗化"><a href="#锁粗化" class="headerlink" title="锁粗化"></a>锁粗化</h5><p>对于在短时间内频繁重复进行加锁、解锁操作的情况，JVM会对其进行锁粗化，即扩大加锁的范围</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">copyString100Times</span><span class="params">(String string)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">        StringBuffer sb = <span class="keyword">new</span> StringBuffer();</span><br><span class="line">        <span class="keyword">while</span> (i &lt; <span class="number">100</span>) &#123;</span><br><span class="line">            sb.append(string);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> sb.toString();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>因为StringBuffer中的append方法是用synchronized修饰的，所以每次进行append操作都会对sb对象锁进行加锁、解锁操作，因此JVM会将对象锁粗化，将100次的加锁、解锁操作粗化为1次，即从while循环开始到循环结束</p>
+<h5 id="Synchronized的四种状态"><a href="#Synchronized的四种状态" class="headerlink" title="Synchronized的四种状态"></a>Synchronized的四种状态</h5><ol>
+<li>无锁</li>
+<li>偏向锁<ul>
+<li>大多数情况下，锁不存在多线程竞争的问题，而总是由统一线程多次获得</li>
+<li>偏向锁的使用减少统一线程获取锁的代价<ul>
+<li>如果一个线程获取了锁，那么锁就进入偏向模式，此时Mark Word的结构变为偏向锁结构，当该线程再次请求锁时，无需再次同步，只需要检查Mark Word的锁标记位置以及当前线程Id等于Mark Word的ThreadId即可</li>
+</ul>
+</li>
+<li>不适用于锁竞争激烈的场景</li>
+</ul>
+</li>
+<li>轻量级锁<ul>
+<li>加锁<ul>
+<li>JVM在当前线程的栈帧中创建用于存储锁记录的空间，并将对象头中的Mark Word复制到锁记录中（Displaced Mark Word）</li>
+<li>接着线程尝试使用CAS操作将对象头中的Mark Word替换为指向锁记录的指针，如果成功，则线程获得锁。如果失败，则表示有其他线程竞争锁，当前线程会尝试使用自旋锁来获取锁</li>
+</ul>
+</li>
+<li>解锁<ul>
+<li>通过CAS操作将Displaced Mark Word替换回对象头，如果成功，表示当前没有竞争发生，如果失败，则表示当前存在竞争情况，接着锁膨胀为重量级锁</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>重量级锁</li>
+</ol>
+<ul>
+<li>锁膨胀：无锁 -&gt; 偏向锁 -&gt; 轻量级锁 -&gt; 重量级锁</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Thread/" rel="tag"># Thread</a>
+          
+            <a href="/tags/线程安全/" rel="tag"># 线程安全</a>
+          
+            <a href="/tags/线程的状态/" rel="tag"># 线程的状态</a>
+          
+            <a href="/tags/线程池/" rel="tag"># 线程池</a>
+          
+            <a href="/tags/synchronized/" rel="tag"># synchronized</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/22/进程和线程的区别/" rel="next" title="进程和线程的区别">
+                <i class="fa fa-chevron-left"></i> 进程和线程的区别
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Daniel</p>
+              <p class="site-description motion-element" itemprop="description">记录我的学习路程</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#线程的创建方式"><span class="nav-number">1.</span> <span class="nav-text">线程的创建方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程池"><span class="nav-number">2.</span> <span class="nav-text">线程池</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Executor框架"><span class="nav-number">2.1.</span> <span class="nav-text">Executor框架</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Executor的结构"><span class="nav-number">2.1.1.</span> <span class="nav-text">Executor的结构</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Executor的组成成员"><span class="nav-number">2.1.2.</span> <span class="nav-text">Executor的组成成员</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程的状态"><span class="nav-number">3.</span> <span class="nav-text">线程的状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为什么会有线程安全问题"><span class="nav-number">4.</span> <span class="nav-text">为什么会有线程安全问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#start-与run-的区别"><span class="nav-number">5.</span> <span class="nav-text">start()与run()的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sleep-与wait-的区别"><span class="nav-number">6.</span> <span class="nav-text">sleep()与wait()的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#synchronized"><span class="nav-number">7.</span> <span class="nav-text">synchronized</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现Synchronized基础"><span class="nav-number">8.</span> <span class="nav-text">实现Synchronized基础</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Java对象"><span class="nav-number">8.0.1.</span> <span class="nav-text">Java对象</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Monitor"><span class="nav-number">8.0.2.</span> <span class="nav-text">Monitor</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#自旋锁"><span class="nav-number">8.0.3.</span> <span class="nav-text">自旋锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#自适应自旋锁"><span class="nav-number">8.0.4.</span> <span class="nav-text">自适应自旋锁</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#锁消除"><span class="nav-number">8.0.5.</span> <span class="nav-text">锁消除</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#锁粗化"><span class="nav-number">8.0.6.</span> <span class="nav-text">锁粗化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Synchronized的四种状态"><span class="nav-number">8.0.7.</span> <span class="nav-text">Synchronized的四种状态</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Daniel</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">7.4k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

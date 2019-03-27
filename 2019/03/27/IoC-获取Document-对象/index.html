@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="IoC,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="经过验证模式之后，就可以对Document进行加载了，XmlBeanFactoryReader类将文档的读取委托给DocumentLoadder执行，进而调用DefaultDocumentLoader来执行加载过程。">
+<meta name="keywords" content="IoC">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IoC-获取Document 对象">
+<meta property="og:url" content="http://huangttt18.github.io/2019/03/27/IoC-获取Document-对象/index.html">
+<meta property="og:site_name" content="Daniel&#39;s Blog">
+<meta property="og:description" content="经过验证模式之后，就可以对Document进行加载了，XmlBeanFactoryReader类将文档的读取委托给DocumentLoadder执行，进而调用DefaultDocumentLoader来执行加载过程。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-03-27T00:35:42.782Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="IoC-获取Document 对象">
+<meta name="twitter:description" content="经过验证模式之后，就可以对Document进行加载了，XmlBeanFactoryReader类将文档的读取委托给DocumentLoadder执行，进而调用DefaultDocumentLoader来执行加载过程。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://huangttt18.github.io/2019/03/27/IoC-获取Document-对象/">
+
+
+
+
+
+  <title>IoC-获取Document 对象 | Daniel's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Daniel's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-github">
+          <a href="/github/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-github"></i> <br>
+            
+            Github
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://huangttt18.github.io/2019/03/27/IoC-获取Document-对象/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Daniel">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Daniel's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">IoC-获取Document 对象</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-27T08:33:04+08:00">
+                2019-03-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Spring源码/" itemprop="url" rel="index">
+                    <span itemprop="name">Spring源码</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.5k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  7
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>经过验证模式之后，就可以对Document进行加载了，<code>XmlBeanFactoryReader</code>类将文档的读取委托给<code>DocumentLoadder</code>执行，进而调用<code>DefaultDocumentLoader</code>来执行加载过程。</p>
+<a id="more"></a>
+<blockquote>
+<p>该文章为学习笔记，收集整理于<code>芋道源码</code>，<code>Spring源码深度解析</code></p>
+</blockquote>
+<p>在<code>loadDocument()</code>方法的参数中有一个<code>EntityResolver</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">loadDocument(InputSource inputSource, EntityResolver entityResolver,</span><br><span class="line">			ErrorHandler errorHandler, <span class="keyword">int</span> validationMode, <span class="keyword">boolean</span> namespaceAware)</span><br></pre></td></tr></table></figure>
+<p>它通过<code>getEntityResolver()</code>方法获取</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Return the EntityResolver to use, building a default resolver</span></span><br><span class="line"><span class="comment"> * if none specified.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> EntityResolver <span class="title">getEntityResolver</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (<span class="keyword">this</span>.entityResolver == <span class="keyword">null</span>) &#123;</span><br><span class="line">		<span class="comment">// Determine default EntityResolver to use.</span></span><br><span class="line">		ResourceLoader resourceLoader = getResourceLoader();</span><br><span class="line">		<span class="keyword">if</span> (resourceLoader != <span class="keyword">null</span>) &#123;</span><br><span class="line">			<span class="keyword">this</span>.entityResolver = <span class="keyword">new</span> ResourceEntityResolver(resourceLoader);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="keyword">this</span>.entityResolver = <span class="keyword">new</span> DelegatingEntityResolver(getBeanClassLoader());</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">this</span>.entityResolver;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>如果resourceLoader不为null，则创建一个ResourceEntityResolver</p>
+</li>
+<li><p>如果resourceLoader为null，则创建DelegatingEntityResolver来将entityResolver委托给默认的 BeansDtdResolver 和 PluggableSchemaResolver </p>
+</li>
+</ul>
+<p>那么EntityResolver是做什么的？</p>
+<h3 id="EntityResolver"><a href="#EntityResolver" class="headerlink" title="EntityResolver"></a>EntityResolver</h3><blockquote>
+<p>如果SAX应用程序需要实现自定义处理外部实体，则必须实现此接口并使用setEntityResovler方法向SAX驱动器注册一个实例。</p>
+<p>即当解析一个XML，SAX首先应该读取XML文档的声明，根据声明寻找DTD定义，以便对文档进行一个验证。但是默认的寻找规则是通过网络来下载相应的DTD声明，并进行验证，这需要花费一段时间，而且如果过程中网络发生错误或不可用时，就会报错，因为DTD声明没有被找到。</p>
+<p>EntityResolver的作用就是在项目本身提供一个寻找DTD声明的方法，比如将DTD声明文件放到项目中，在实现时直接读取文档并返回给SAX即可，这样就能避免网络下载发生错误的问题。</p>
+</blockquote>
+<p>EntityResolver接口方法声明</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">InputSource <span class="title">resolveEntity</span><span class="params">(String publicId, String systemId)</span></span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>publicId：被引用的外部实体的公共标识符，如果没有提供，则返回 <code>null</code> </li>
+<li>systemId：被引用的外部实体的系统标识符</li>
+</ul>
+<p>在这里EntityResolver的实现类有4个</p>
+<ul>
+<li>ResourceEntityResolver</li>
+<li>DelegatingEntityResolver</li>
+<li>BeansDtdResolver</li>
+<li>PluggableSchemaResolver</li>
+</ul>
+<p>其中，DelegatingEntityResolver会调用BeansDtdResolver或者PluggableSchemaResolver来进行解析</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DelegatingEntityResolver</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> InputSource <span class="title">resolveEntity</span><span class="params">(String publicId, @Nullable String systemId)</span> <span class="keyword">throws</span> SAXException, IOException </span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (systemId != <span class="keyword">null</span>) &#123;</span><br><span class="line">		<span class="comment">// DTD 模式</span></span><br><span class="line">		<span class="keyword">if</span> (systemId.endsWith(DTD_SUFFIX)) &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">this</span>.dtdResolver.resolveEntity(publicId, systemId);</span><br><span class="line">		<span class="comment">// XSD 模式</span></span><br><span class="line">		&#125; <span class="keyword">else</span> <span class="keyword">if</span> (systemId.endsWith(XSD_SUFFIX)) &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">this</span>.schemaResolver.resolveEntity(publicId, systemId);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>如果验证模式为DTD，那么调用BeanDtdResolver来进行解析</li>
+<li>如果验证模式为XSD，那么调用PluggableSchemaResolver来解析</li>
+</ul>
+<h4 id="BeanDtdResolver的解析过程"><a href="#BeanDtdResolver的解析过程" class="headerlink" title="BeanDtdResolver的解析过程"></a>BeanDtdResolver的解析过程</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * DTD 文件的后缀</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String DTD_EXTENSION = <span class="string">".dtd"</span>;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Spring Bean DTD 的文件名</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String DTD_NAME = <span class="string">"spring-beans"</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> InputSource <span class="title">resolveEntity</span><span class="params">(String publicId, @Nullable String systemId)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">        logger.trace(<span class="string">"Trying to resolve XML entity with public ID ["</span> + publicId +</span><br><span class="line">                <span class="string">"] and system ID ["</span> + systemId + <span class="string">"]"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 必须以 .dtd 结尾</span></span><br><span class="line">    <span class="keyword">if</span> (systemId != <span class="keyword">null</span> &amp;&amp; systemId.endsWith(DTD_EXTENSION)) &#123;</span><br><span class="line">        <span class="comment">// 获取最后一个 / 的位置</span></span><br><span class="line">        <span class="keyword">int</span> lastPathSeparator = systemId.lastIndexOf(<span class="string">'/'</span>);</span><br><span class="line">        <span class="comment">// 获取 spring-beans 的位置</span></span><br><span class="line">        <span class="keyword">int</span> dtdNameStart = systemId.indexOf(DTD_NAME, lastPathSeparator);</span><br><span class="line">        <span class="keyword">if</span> (dtdNameStart != -<span class="number">1</span>) &#123; <span class="comment">// 找到</span></span><br><span class="line">            String dtdFile = DTD_NAME + DTD_EXTENSION;</span><br><span class="line">            <span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">                logger.trace(<span class="string">"Trying to locate ["</span> + dtdFile + <span class="string">"] in Spring jar on classpath"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 创建 ClassPathResource 对象</span></span><br><span class="line">                Resource resource = <span class="keyword">new</span> ClassPathResource(dtdFile, getClass());</span><br><span class="line">                <span class="comment">// 创建 InputSource 对象，并设置 publicId、systemId 属性</span></span><br><span class="line">                InputSource source = <span class="keyword">new</span> InputSource(resource.getInputStream());</span><br><span class="line">                source.setPublicId(publicId);</span><br><span class="line">                source.setSystemId(systemId);</span><br><span class="line">                <span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">                    logger.trace(<span class="string">"Found beans DTD ["</span> + systemId + <span class="string">"] in classpath: "</span> + dtdFile);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> source;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">                <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">                    logger.debug(<span class="string">"Could not resolve beans DTD ["</span> + systemId + <span class="string">"]: not found in classpath"</span>, ex);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使用默认行为，从网络上下载</span></span><br><span class="line">    <span class="comment">// Use the default behavior -&gt; download from website or wherever.</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检查systemId是否为空并且是否以.dtd结尾，如果不是，则使用默认的DTD声明的寻找模式</li>
+<li>解析DTD文件的文件名，并创建ClassPathResource，构造InputSource对象设置publicId、systemId并返回</li>
+</ul>
+<h4 id="PluggableSchemaResolver的解析过程"><a href="#PluggableSchemaResolver的解析过程" class="headerlink" title="PluggableSchemaResolver的解析过程"></a>PluggableSchemaResolver的解析过程</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ClassLoader classLoader;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Schema 文件地址</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> String schemaMappingsLocation;</span><br><span class="line"></span><br><span class="line"><span class="comment">/** Stores the mapping of schema URL -&gt; local schema path. */</span></span><br><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> Map&lt;String, String&gt; schemaMappings; <span class="comment">// namespaceURI 与 Schema 文件地址的映射集合</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> InputSource <span class="title">resolveEntity</span><span class="params">(String publicId, @Nullable String systemId)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">        logger.trace(<span class="string">"Trying to resolve XML entity with public id ["</span> + publicId +</span><br><span class="line">                <span class="string">"] and system id ["</span> + systemId + <span class="string">"]"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (systemId != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 获得 Resource 所在位置</span></span><br><span class="line">        String resourceLocation = getSchemaMappings().get(systemId);</span><br><span class="line">        <span class="keyword">if</span> (resourceLocation != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 创建 ClassPathResource</span></span><br><span class="line">            Resource resource = <span class="keyword">new</span> ClassPathResource(resourceLocation, <span class="keyword">this</span>.classLoader);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 创建 InputSource 对象，并设置 publicId、systemId 属性</span></span><br><span class="line">                InputSource source = <span class="keyword">new</span> InputSource(resource.getInputStream());</span><br><span class="line">                source.setPublicId(publicId);</span><br><span class="line">                source.setSystemId(systemId);</span><br><span class="line">                <span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">                    logger.trace(<span class="string">"Found XML schema ["</span> + systemId + <span class="string">"] in classpath: "</span> + resourceLocation);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> source;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span> (FileNotFoundException ex) &#123;</span><br><span class="line">                <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">                    logger.debug(<span class="string">"Could not find XML schema ["</span> + systemId + <span class="string">"]: "</span> + resource, ex);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>检查systemId是否存在，如果存在，那么通过<code>getSchemaMappings().get(systemId)</code>获取resourceLocation</li>
+<li>检查resourceLocation是否为空，如果不为空，那么创建ClassPathResource，然后通过resource获取InputSource，设置publicId、systemId并返回</li>
+</ul>
+<h5 id="getSchemaMappings"><a href="#getSchemaMappings" class="headerlink" title="getSchemaMappings()"></a>getSchemaMappings()</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Map&lt;String, String&gt; <span class="title">getSchemaMappings</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Map&lt;String, String&gt; schemaMappings = <span class="keyword">this</span>.schemaMappings;</span><br><span class="line">    <span class="comment">// 双重检查锁，实现 schemaMappings 单例</span></span><br><span class="line">    <span class="keyword">if</span> (schemaMappings == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">            schemaMappings = <span class="keyword">this</span>.schemaMappings;</span><br><span class="line">            <span class="keyword">if</span> (schemaMappings == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">                    logger.trace(<span class="string">"Loading schema mappings from ["</span> + <span class="keyword">this</span>.schemaMappingsLocation + <span class="string">"]"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="comment">// 以 Properties 的方式，读取 schemaMappingsLocation</span></span><br><span class="line">                    Properties mappings = PropertiesLoaderUtils.loadAllProperties(<span class="keyword">this</span>.schemaMappingsLocation, <span class="keyword">this</span>.classLoader);</span><br><span class="line">                    <span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">                        logger.trace(<span class="string">"Loaded schema mappings: "</span> + mappings);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="comment">// 将 mappings 初始化到 schemaMappings 中</span></span><br><span class="line">                    schemaMappings = <span class="keyword">new</span> ConcurrentHashMap&lt;&gt;(mappings.size());</span><br><span class="line">                    CollectionUtils.mergePropertiesIntoMap(mappings, schemaMappings);</span><br><span class="line">                    <span class="keyword">this</span>.schemaMappings = schemaMappings;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(</span><br><span class="line">                            <span class="string">"Unable to load schema mappings from location ["</span> + <span class="keyword">this</span>.schemaMappingsLocation + <span class="string">"]"</span>, ex);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> schemaMappings;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="ResourceEntityResolver解析过程"><a href="#ResourceEntityResolver解析过程" class="headerlink" title="ResourceEntityResolver解析过程"></a>ResourceEntityResolver解析过程</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ResourceLoader resourceLoader;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="meta">@Nullable</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> InputSource <span class="title">resolveEntity</span><span class="params">(String publicId, @Nullable String systemId)</span> <span class="keyword">throws</span> SAXException, IOException </span>&#123;</span><br><span class="line">    <span class="comment">// 调用父类的方法，进行解析</span></span><br><span class="line">    InputSource source = <span class="keyword">super</span>.resolveEntity(publicId, systemId);</span><br><span class="line">    <span class="comment">// 解析失败，resourceLoader 进行解析</span></span><br><span class="line">    <span class="keyword">if</span> (source == <span class="keyword">null</span> &amp;&amp; systemId != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 获得 resourcePath ，即 Resource 资源地址</span></span><br><span class="line">        String resourcePath = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            String decodedSystemId = URLDecoder.decode(systemId, <span class="string">"UTF-8"</span>); <span class="comment">// 使用 UTF-8 ，解码 systemId</span></span><br><span class="line">            String givenUrl = <span class="keyword">new</span> URL(decodedSystemId).toString(); <span class="comment">// 转换成 URL 字符串</span></span><br><span class="line">            <span class="comment">// 解析文件资源的相对路径（相对于系统根路径）</span></span><br><span class="line">            String systemRootUrl = <span class="keyword">new</span> File(<span class="string">""</span>).toURI().toURL().toString();</span><br><span class="line">            <span class="comment">// Try relative to resource base if currently in system root.</span></span><br><span class="line">            <span class="keyword">if</span> (givenUrl.startsWith(systemRootUrl)) &#123;</span><br><span class="line">                resourcePath = givenUrl.substring(systemRootUrl.length());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">            <span class="comment">// Typically a MalformedURLException or AccessControlException.</span></span><br><span class="line">            <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">                logger.debug(<span class="string">"Could not resolve XML entity ["</span> + systemId + <span class="string">"] against system root URL"</span>, ex);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// No URL (or no resolvable URL) -&gt; try relative to resource base.</span></span><br><span class="line">            resourcePath = systemId;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (resourcePath != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (logger.isTraceEnabled()) &#123;</span><br><span class="line">                logger.trace(<span class="string">"Trying to locate XML entity ["</span> + systemId + <span class="string">"] as resource ["</span> + resourcePath + <span class="string">"]"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 获得 Resource 资源</span></span><br><span class="line">            Resource resource = <span class="keyword">this</span>.resourceLoader.getResource(resourcePath);</span><br><span class="line">            <span class="comment">// 创建 InputSource 对象</span></span><br><span class="line">            source = <span class="keyword">new</span> InputSource(resource.getInputStream());</span><br><span class="line">            <span class="comment">// 设置 publicId 和 systemId 属性</span></span><br><span class="line">            source.setPublicId(publicId);</span><br><span class="line">            source.setSystemId(systemId);</span><br><span class="line">            <span class="keyword">if</span> (logger.isDebugEnabled()) &#123;</span><br><span class="line">                logger.debug(<span class="string">"Found XML entity ["</span> + systemId + <span class="string">"]: "</span> + resource);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> source;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/IoC/" rel="tag"># IoC</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/26/IOC-BeanDefinition加载/" rel="next" title="IOC-BeanDefinition加载">
+                <i class="fa fa-chevron-left"></i> IOC-BeanDefinition加载
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Daniel</p>
+              <p class="site-description motion-element" itemprop="description">记录我的学习路程</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#EntityResolver"><span class="nav-number">1.</span> <span class="nav-text">EntityResolver</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#BeanDtdResolver的解析过程"><span class="nav-number">1.1.</span> <span class="nav-text">BeanDtdResolver的解析过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PluggableSchemaResolver的解析过程"><span class="nav-number">1.2.</span> <span class="nav-text">PluggableSchemaResolver的解析过程</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#getSchemaMappings"><span class="nav-number">1.2.1.</span> <span class="nav-text">getSchemaMappings()</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ResourceEntityResolver解析过程"><span class="nav-number">1.3.</span> <span class="nav-text">ResourceEntityResolver解析过程</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Daniel</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">14k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

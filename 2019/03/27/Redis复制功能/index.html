@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="MySQL,事务,">
+  <meta name="keywords" content="复制,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="事务，就是对一系列的数据库操作进行统一提交或回滚操作，要么全部成功，要么全部失败，不允许部分成功部分失败的情况">
-<meta name="keywords" content="MySQL,事务">
+<meta name="description" content="Redis的复制功能分为同步（Sync）和命令传播（Command Propagate）两个操作，其中  同步：用于将从服务器的数据库状态更新值主服务器当前所处的数据库状态 命令传播：用于在主服务器的数据库状态被修改，导致主从服务器的数据库状态出现不一致时，让主从服务器的数据库重新回到一致状态">
+<meta name="keywords" content="复制">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MySQL事务">
-<meta property="og:url" content="http://huangttt18.github.io/2019/03/22/MySQL事务/index.html">
+<meta property="og:title" content="Redis复制功能">
+<meta property="og:url" content="http://huangttt18.github.io/2019/03/27/Redis复制功能/index.html">
 <meta property="og:site_name" content="Daniel&#39;s Blog">
-<meta property="og:description" content="事务，就是对一系列的数据库操作进行统一提交或回滚操作，要么全部成功，要么全部失败，不允许部分成功部分失败的情况">
+<meta property="og:description" content="Redis的复制功能分为同步（Sync）和命令传播（Command Propagate）两个操作，其中  同步：用于将从服务器的数据库状态更新值主服务器当前所处的数据库状态 命令传播：用于在主服务器的数据库状态被修改，导致主从服务器的数据库状态出现不一致时，让主从服务器的数据库重新回到一致状态">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-22T01:34:53.635Z">
+<meta property="og:updated_time" content="2019-03-27T15:20:03.898Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="MySQL事务">
-<meta name="twitter:description" content="事务，就是对一系列的数据库操作进行统一提交或回滚操作，要么全部成功，要么全部失败，不允许部分成功部分失败的情况">
+<meta name="twitter:title" content="Redis复制功能">
+<meta name="twitter:description" content="Redis的复制功能分为同步（Sync）和命令传播（Command Propagate）两个操作，其中  同步：用于将从服务器的数据库状态更新值主服务器当前所处的数据库状态 命令传播：用于在主服务器的数据库状态被修改，导致主从服务器的数据库状态出现不一致时，让主从服务器的数据库重新回到一致状态">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://huangttt18.github.io/2019/03/22/MySQL事务/">
+  <link rel="canonical" href="http://huangttt18.github.io/2019/03/27/Redis复制功能/">
 
 
 
 
 
-  <title>MySQL事务 | Daniel's Blog</title>
+  <title>Redis复制功能 | Daniel's Blog</title>
   
 
 
@@ -273,7 +273,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://huangttt18.github.io/2019/03/22/MySQL事务/">
+    <link itemprop="mainEntityOfPage" href="http://huangttt18.github.io/2019/03/27/Redis复制功能/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Daniel">
@@ -290,7 +290,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">MySQL事务</h1>
+          <h1 class="post-title" itemprop="name headline">Redis复制功能</h1>
         
 
         <div class="post-meta">
@@ -302,8 +302,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-22T09:15:00+08:00">
-                2019-03-22
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-27T23:17:03+08:00">
+                2019-03-27
               </time>
             
 
@@ -325,8 +325,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/数据库/" itemprop="url" rel="index">
-                    <span itemprop="name">数据库</span>
+                  <a href="/categories/redis/" itemprop="url" rel="index">
+                    <span itemprop="name">redis</span>
                   </a>
                 </span>
 
@@ -356,7 +356,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  599
+                  1.6k
                 </span>
               
 
@@ -372,7 +372,7 @@
                   <span class="post-meta-item-text">阅读时长 &asymp;</span>
                 
                 <span title="阅读时长">
-                  2
+                  5
                 </span>
               
             </div>
@@ -393,32 +393,71 @@
       
 
       
-        <p>事务，就是对一系列的数据库操作进行统一提交或回滚操作，要么全部成功，要么全部失败，不允许部分成功部分失败的情况</p>
+        <p>Redis的复制功能分为同步（Sync）和命令传播（Command Propagate）两个操作，其中</p>
+<ul>
+<li>同步：用于将从服务器的数据库状态更新值主服务器当前所处的数据库状态</li>
+<li>命令传播：用于在主服务器的数据库状态被修改，导致主从服务器的数据库状态出现不一致时，让主从服务器的数据库重新回到一致状态</li>
+</ul>
 <a id="more"></a>
-<h3 id="事务的特性"><a href="#事务的特性" class="headerlink" title="事务的特性"></a>事务的特性</h3><h5 id="ACID"><a href="#ACID" class="headerlink" title="ACID"></a>ACID</h5><ul>
-<li><p>A：原子性，一个事务（transaction）中的所有操作，或者全部完成，或者全部不完成，不会结束在中间某个环节。事务在执行过程中发生错误，会被恢复（Rollback）到事务开始前的状态</p>
+<h3 id="旧版复制功能的缺陷"><a href="#旧版复制功能的缺陷" class="headerlink" title="旧版复制功能的缺陷"></a>旧版复制功能的缺陷</h3><p>从服务器对主服务器的复制可以分为两种</p>
+<ul>
+<li><p>初次复制：此时从服务器没有复制过任何的主服务器，或者从服务器当前要复制的主服务器和上一次复制的主服务器不同</p>
 </li>
-<li><p>C：一致性，在事务开始之前和事务结束以后，数据库的完整性没有被破坏。</p>
-</li>
-<li><p>I：隔离性，数据库允许多个并发事务同时对其数据进行读写和修改的能力，隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致。事务分为四种隔离级别</p>
-</li>
-<li><p>D：持久性，事务处理结束后，对数据的修改就是永久的，即便系统故障也不会丢失。</p>
+<li><p>断线后重新复制：在命令传播阶段的主从服务器因为网络等问题断开了连接而中断了复制，但是从服务器通过自动重连机制重新连接上了主服务器，并继续复制，这种情况下的复制效率较低</p>
+<p>当中断重连之后，从服务器会继续向主服务器发送sync命令，那么主服务器会再次执行BGSAVE命令，将当前主服务器的数据库状态给快照出来，发送给从服务器，从服务器因为不知道是从哪里中断的，那么只能从头开始载入RDB文件</p>
 </li>
 </ul>
-<h4 id="事务的并发操作"><a href="#事务的并发操作" class="headerlink" title="事务的并发操作"></a>事务的并发操作</h4><ul>
-<li><p>事务的并发操作会导致三个问题：</p>
-<ol>
-<li>脏读，事务A读取了事务B修改的数据，然后事务B进行回滚操作，那么A读取到的数据就是脏数据</li>
-<li>不可重复读，事务A多次读取同一数据，在这个过程中事务B修改了该数据，并进行提交，导致事务A多次读取的同一数据结果不一致</li>
-<li>幻读，事务A修改表中所有数据的某一个字段的值，在这个过程中，事务B新增了一条没有被修改过字段的数据，当事务A完成之后发现还有数据没有被修改，即幻读</li>
-</ol>
+<h2 id="新版复制功能的实现"><a href="#新版复制功能的实现" class="headerlink" title="新版复制功能的实现"></a>新版复制功能的实现</h2><p>为了解决旧版复制功能的缺陷，Redis2.8开始新版复制功能使用PSYNC命令代替SYNC命令来执行复制时的同步操作，PSYNC具有完整重同步和部分重同步两种模式</p>
+<ul>
+<li>完整重同步：与旧版初次复制一样</li>
+<li>部分重同步：如果在同步的过程中，主从服务器的连接断开了，主服务器可以将主从服务器断开期间执行的写命令发送给从服务器，从服务器只要接受并执行这些写命令就可以将数据库状态更新至主服务器当前所处的状态了</li>
+</ul>
+<h3 id="部分重同步的实现"><a href="#部分重同步的实现" class="headerlink" title="部分重同步的实现"></a>部分重同步的实现</h3><p>部分重同步由以下三个部分构成</p>
+<ul>
+<li>主服务器的复制偏移量（replication offset）和从服务器的复制偏移量</li>
+<li>主服务器的复制积压缓冲（replication backlog）</li>
+<li>服务器的运行ID（run ID）</li>
+</ul>
+<h4 id="复制偏移量"><a href="#复制偏移量" class="headerlink" title="复制偏移量"></a>复制偏移量</h4><p>主服务器和从服务器会分别维护一个复制偏移量</p>
+<ul>
+<li><p>主服务器每次向从服务器传播N个字节的数据时，就将自己的复制偏移量的值加上N</p>
+</li>
+<li><p>从服务器每次收到主服务器传播来的N个字节的数据时，就将自己的复制偏移量的值加上N</p>
 </li>
 </ul>
-<h3 id="事务的四种隔离级别"><a href="#事务的四种隔离级别" class="headerlink" title="事务的四种隔离级别"></a>事务的四种隔离级别</h3><ul>
-<li>READ UNCOMMITED：事务中的修改即使没有被提交，对其他事务也是可见的，会导致脏读、不可重复读和幻读</li>
-<li>READ COMMITED：事务从开始直到提交之前，所做的任何修改对其他事务都是不可见的，会导致不可重复读和幻读</li>
-<li>REPEATABLE READ：一个事务按相同的查询条件读取以前检索过的数据，其他事务插入了满足其查询条件的新数据。产生幻行。导致幻读（MySQL默认的事务隔离级别）</li>
-<li>SERIALIZABLE：强制事务串行执行</li>
+<p>这样通过对比主从服务器的复制偏移量即可以知道主从服务器的状态是否一致</p>
+<h4 id="复制积压缓冲"><a href="#复制积压缓冲" class="headerlink" title="复制积压缓冲"></a>复制积压缓冲</h4><p>复制积压缓冲是由主服务器维护的一个固定长度的先进先出的队列，默认大小为1MB</p>
+<ul>
+<li>固定长度的队列<ul>
+<li>与普通队列的出队入队方式一样，都是先进先出，但是该队列的长度是固定的，意味着如果当前元素长度超过了队列的长度，最先入队的元素会被弹出，然后将新元素入队</li>
+</ul>
+</li>
+</ul>
+<p>当主服务器进行命令传播时，它不仅会将写命令发送给所有从服务器，还会将写命令入队到复制积压缓冲中，同时为复制积压缓冲中的每个字节记录相应的复制偏移量</p>
+<p>当从服务器重新连接上主服务器时，从服务器会通过PSYNC命令将自己的复制偏移量offset发送给主服务器，主服务器会根据这个复制偏移量来决定对从服务器执行何种同步操作</p>
+<ul>
+<li>如果offset偏移量之后的数据仍然存在于复制积压缓冲区里，那么主服务器将对从服务器执行部分重同步操作</li>
+<li>如果offset偏移量之后的数据不存在与复制积压缓冲中，那么主服务器将对从服务器执行完整重同步</li>
+</ul>
+<h3 id="服务器运行ID"><a href="#服务器运行ID" class="headerlink" title="服务器运行ID"></a>服务器运行ID</h3><p>每个Redis服务器都会有自己的运行ID，运行ID在服务器启动时自动生成</p>
+<ul>
+<li>当从服务器对主服务器进行初次复制时，主服务器会把自己的运行ID发送给从服务器，从服务器会将之保存起来</li>
+<li>当从服务器断线重连后，会将自己保存的运行ID发送给主服务器<ul>
+<li>如果运行ID与接收方主服务器的运行ID相同，那么说明从服务器断线之前复制的就是当前连接的主服务器，那么主服务器可以执行部分重同步</li>
+<li>如果运行ID不同，那么就表示当前连接的主服务器与断线前连接的主服务器不是一台服务器，那么就要执行完整重同步</li>
+</ul>
+</li>
+</ul>
+<h2 id="PSYNC命令的实现"><a href="#PSYNC命令的实现" class="headerlink" title="PSYNC命令的实现"></a>PSYNC命令的实现</h2><p>PSYNC的调用方法有两种</p>
+<ul>
+<li>如果从服务器以前没有复制过任何主服务器，或者之前执行过SLAVEOF NO ONE命令，那么从服务器在开始新的复制时将向主服务器发送PSYNC ? -1 命令，主动请求主服务器进行完整重同步</li>
+<li>如果从服务器已经复制过某个主服务器，那么从服务器在开始一次新的复制时将向主服务器发送PSYNC runid offset命令，其中，runid是上一次复制的主服务器的runid，offset是从服务器当前的复制偏移量</li>
+</ul>
+<p>接收到PSYNC的主服务器会向从服务器返回以下三种回复的一种</p>
+<ul>
+<li>主服务器返回+FULLRESYNC runid offset，表示主服务器将与从服务器执行完整重同步</li>
+<li>主服务器返回+CONTINUE，表示主服务器将与从服务器执行部分重同步操作</li>
+<li>主服务器返回-ERR，表示当前主服务器的Redis版本低于2.8，它识别不了PSYNC命令，从服务器将向主服务器发送SYNC命令并与主服务器执行完整重同步</li>
 </ul>
 
       
@@ -437,9 +476,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/MySQL/" rel="tag"># MySQL</a>
-          
-            <a href="/tags/事务/" rel="tag"># 事务</a>
+            <a href="/tags/复制/" rel="tag"># 复制</a>
           
         </div>
       
@@ -452,8 +489,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/03/22/Linux常用命令总结/" rel="next" title="Linux常用命令总结">
-                <i class="fa fa-chevron-left"></i> Linux常用命令总结
+              <a href="/2019/03/27/IoC-BeanDefinitions注册/" rel="next" title="IoC-BeanDefinitions注册">
+                <i class="fa fa-chevron-left"></i> IoC-BeanDefinitions注册
               </a>
             
           </div>
@@ -462,8 +499,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/03/22/MySQL索引/" rel="prev" title="MySQL索引">
-                MySQL索引 <i class="fa fa-chevron-right"></i>
+              <a href="/2019/03/27/Redis-Sentinel/" rel="prev" title="Redis-Sentinel">
+                Redis-Sentinel <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -596,7 +633,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#事务的特性"><span class="nav-number">1.</span> <span class="nav-text">事务的特性</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#ACID"><span class="nav-number">1.0.1.</span> <span class="nav-text">ACID</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#事务的并发操作"><span class="nav-number">1.1.</span> <span class="nav-text">事务的并发操作</span></a></li></ol><li class="nav-item nav-level-3"><a class="nav-link" href="#事务的四种隔离级别"><span class="nav-number">2.</span> <span class="nav-text">事务的四种隔离级别</span></a></li></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#旧版复制功能的缺陷"><span class="nav-number">1.</span> <span class="nav-text">旧版复制功能的缺陷</span></a></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#新版复制功能的实现"><span class="nav-number"></span> <span class="nav-text">新版复制功能的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#部分重同步的实现"><span class="nav-number">1.</span> <span class="nav-text">部分重同步的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#复制偏移量"><span class="nav-number">1.1.</span> <span class="nav-text">复制偏移量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#复制积压缓冲"><span class="nav-number">1.2.</span> <span class="nav-text">复制积压缓冲</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#服务器运行ID"><span class="nav-number">2.</span> <span class="nav-text">服务器运行ID</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PSYNC命令的实现"><span class="nav-number"></span> <span class="nav-text">PSYNC命令的实现</span></a></li></div>
             
 
           </div>

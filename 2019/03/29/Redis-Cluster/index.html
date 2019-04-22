@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="Daniel&#39;s Blog">
 <meta property="og:description" content="Redis集群，是Redis提供的分布式数据库方案，集群通过分片（sharding）来进行数据共享，并提供复制和故障转移功能 使用CLUSTER MEET &amp;lt;ip&amp;gt; &amp;lt;port&amp;gt;命令来连接各个节点，组成集群">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-29T07:35:04.694Z">
+<meta property="og:updated_time" content="2019-03-29T08:56:55.558Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis-Cluster">
 <meta name="twitter:description" content="Redis集群，是Redis提供的分布式数据库方案，集群通过分片（sharding）来进行数据共享，并提供复制和故障转移功能 使用CLUSTER MEET &amp;lt;ip&amp;gt; &amp;lt;port&amp;gt;命令来连接各个节点，组成集群">
@@ -489,7 +489,7 @@
 </ul>
 <h4 id="如何选举新的主节点"><a href="#如何选举新的主节点" class="headerlink" title="如何选举新的主节点"></a>如何选举新的主节点</h4><ul>
 <li>集群中有一个配置纪元，它是一个自增计数器，初始值为0</li>
-<li>当鸡群里的某个节点开始一次故障转移操作时，配置纪元加1</li>
+<li>当集群里的某个节点开始一次故障转移操作时，配置纪元加1</li>
 <li>对于每个配置纪元，集群里每个负责处理槽的主节点都有一次投票的机会，而第一个向主节点要求投票的从节点将获得主节点的投票</li>
 <li>当从节点发现自己正在复制的主节点已经进入已下线状态时，从节点会向集群广播一条<code>CLUSTERMSG_TYPE_FAILOVER_AUTH_REQUEST</code>消息，要求所有接受到该消息的并且具有投票权的主节点为这个从节点进行投票</li>
 <li>如果一个主节点具有投票权（即它正在负责处理槽），并且这个主节点尚未投票给其他从节点，那么主节点将向要求投票的从节点返回一条<code>cluster_type_failover_auth_ack</code>消息，表示这个主节点支持该从节点成为新的主节点</li>
@@ -553,6 +553,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/22/C-学习笔记（一）/" rel="prev" title="[C++]学习笔记（一）">
+                [C++]学习笔记（一） <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -629,7 +633,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-count">18</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -640,7 +644,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -718,7 +722,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">23.3k</span>
+    <span title="Site words total count">26.1k</span>
   
 </div>
 

@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="JVM,GC,垃圾回收,">
+  <meta name="keywords" content="Kafka,">
 
 
 
@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="当一个对象成为“垃圾”，那么它就会被Java自带的垃圾回收机制回收。">
-<meta name="keywords" content="JVM,GC,垃圾回收">
+<meta name="description" content="Kafka - 一个多分区、多副本的基于ZooKeeper协调的分布式消息系统主要功能包括：  消息系统：系统解耦、冗余存储、削峰、缓冲、异步通信、扩展性和可恢复性 存储系统：Kafka将消息持久化到磁盘 流处理">
+<meta name="keywords" content="Kafka">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java中的垃圾回收机制">
-<meta property="og:url" content="http://huangttt18.github.io/2019/03/22/Java中的垃圾回收机制/index.html">
+<meta property="og:title" content="Kafka基本概念">
+<meta property="og:url" content="http://huangttt18.github.io/2019/07/06/Kafka基本概念/index.html">
 <meta property="og:site_name" content="Daniel&#39;s Blog">
-<meta property="og:description" content="当一个对象成为“垃圾”，那么它就会被Java自带的垃圾回收机制回收。">
+<meta property="og:description" content="Kafka - 一个多分区、多副本的基于ZooKeeper协调的分布式消息系统主要功能包括：  消息系统：系统解耦、冗余存储、削峰、缓冲、异步通信、扩展性和可恢复性 存储系统：Kafka将消息持久化到磁盘 流处理">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-22T01:39:04.642Z">
+<meta property="og:updated_time" content="2019-07-06T04:59:13.162Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java中的垃圾回收机制">
-<meta name="twitter:description" content="当一个对象成为“垃圾”，那么它就会被Java自带的垃圾回收机制回收。">
+<meta name="twitter:title" content="Kafka基本概念">
+<meta name="twitter:description" content="Kafka - 一个多分区、多副本的基于ZooKeeper协调的分布式消息系统主要功能包括：  消息系统：系统解耦、冗余存储、削峰、缓冲、异步通信、扩展性和可恢复性 存储系统：Kafka将消息持久化到磁盘 流处理">
 
 
 
@@ -120,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://huangttt18.github.io/2019/03/22/Java中的垃圾回收机制/">
+  <link rel="canonical" href="http://huangttt18.github.io/2019/07/06/Kafka基本概念/">
 
 
 
 
 
-  <title>Java中的垃圾回收机制 | Daniel's Blog</title>
+  <title>Kafka基本概念 | Daniel's Blog</title>
   
 
 
@@ -273,7 +273,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://huangttt18.github.io/2019/03/22/Java中的垃圾回收机制/">
+    <link itemprop="mainEntityOfPage" href="http://huangttt18.github.io/2019/07/06/Kafka基本概念/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Daniel">
@@ -290,7 +290,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Java中的垃圾回收机制</h1>
+          <h1 class="post-title" itemprop="name headline">Kafka基本概念</h1>
         
 
         <div class="post-meta">
@@ -302,8 +302,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-03-22T09:36:00+08:00">
-                2019-03-22
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-06T12:57:33+08:00">
+                2019-07-06
               </time>
             
 
@@ -325,8 +325,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/虚拟机/" itemprop="url" rel="index">
-                    <span itemprop="name">虚拟机</span>
+                  <a href="/categories/消息中间件/" itemprop="url" rel="index">
+                    <span itemprop="name">消息中间件</span>
                   </a>
                 </span>
 
@@ -356,7 +356,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  747
+                  682
                 </span>
               
 
@@ -393,91 +393,36 @@
       
 
       
-        <p>当一个对象成为“垃圾”，那么它就会被Java自带的垃圾回收机制回收。</p>
+        <h2 id="Kafka-一个多分区、多副本的基于ZooKeeper协调的分布式消息系统"><a href="#Kafka-一个多分区、多副本的基于ZooKeeper协调的分布式消息系统" class="headerlink" title="Kafka - 一个多分区、多副本的基于ZooKeeper协调的分布式消息系统"></a>Kafka - 一个多分区、多副本的基于ZooKeeper协调的分布式消息系统</h2><p>主要功能包括：</p>
+<ul>
+<li>消息系统：系统解耦、冗余存储、削峰、缓冲、异步通信、扩展性和可恢复性</li>
+<li>存储系统：Kafka将消息持久化到磁盘</li>
+<li>流处理</li>
+</ul>
 <a id="more"></a>
-<h3 id="一个对象如何成为”垃圾“"><a href="#一个对象如何成为”垃圾“" class="headerlink" title="一个对象如何成为”垃圾“"></a>一个对象如何成为”垃圾“</h3><ul>
-<li>没有被任何地方所引用</li>
+<h3 id="Kafka的基本组成"><a href="#Kafka的基本组成" class="headerlink" title="Kafka的基本组成"></a>Kafka的基本组成</h3><ul>
+<li>Producer，消息的生产者</li>
+<li>Consumer，消息的消费者</li>
+<li>Broker，可以将一个Kafka实例看作一个Broker</li>
+<li>ZooKeeper，负责集群元数据的管理、控制器的选举等操作</li>
 </ul>
-<h3 id="如何判断一个对象没有被引用"><a href="#如何判断一个对象没有被引用" class="headerlink" title="如何判断一个对象没有被引用"></a>如何判断一个对象没有被引用</h3><ul>
-<li>引用计数法<ul>
-<li>每个对象都会设置一个引用计数器，每当被引用一次，该计数器的值就+1，每当完成一次引用则-1，当引用计数器的值为0时，表示该对象没有被任何地方所引用</li>
-<li>优点：执行效率高，程序执行受影响较小</li>
-<li>缺点：无法检测出循环引用的情况，导致内存泄漏</li>
+<h3 id="重要概念-主题"><a href="#重要概念-主题" class="headerlink" title="重要概念 - 主题"></a>重要概念 - 主题</h3><p>Kafka中的消息以主题为单位进行归类，生产者将消息发送到特定的主题，消费者订阅主题进行消息消费</p>
+<h3 id="重要概念-分区"><a href="#重要概念-分区" class="headerlink" title="重要概念 - 分区"></a>重要概念 - 分区</h3><p>每个主题下又分为多个分区，同一主题下的各个分区的消息是不同的。</p>
+<p>分区，在存储方面可以被看做为一个可追加的日志文件，消息在被追加到分区之后，会附带一个特定的<code>offset（消息在分区中的唯一标识）</code>，Kafka通过offset来保证消息的顺序性，但是offset不会跨分区</p>
+<p>分区可以跨Broker，即主题是可以跨Broker的，消息在被发送到Broker之前会根据<code>分区规则</code>来决定存储到哪个分区中。</p>
+<h4 id="分区的多副本机制"><a href="#分区的多副本机制" class="headerlink" title="分区的多副本机制"></a>分区的多副本机制</h4><p>通过多副本机制，能够提高容灾能力。副本分为Leader副本和Follower副本，为“一主多从”模式，其中Leader副本主要用于读写消息，而Follower副本只负责与Leader副本保持消息同步。</p>
+<p>副本位于多个Broker中，当Leader副本出现故障时，会从Follower副本中重新选举新的Leader副本对外提供服务，这就是Kafka的<code>故障转移</code></p>
+<h4 id="Kafka消费端的容灾能力"><a href="#Kafka消费端的容灾能力" class="headerlink" title="Kafka消费端的容灾能力"></a>Kafka消费端的容灾能力</h4><p>Consumer使用Pull的方式来拉取消息，同时会保存消费的具体位置，当Consumer宕机后恢复上线时可以根据之前保存的消费位置重新拉去需要消费的信息进行消费，这样就不会造成消息的丢失</p>
+<h4 id="副本"><a href="#副本" class="headerlink" title="副本"></a>副本</h4><ul>
+<li>AR（Assigned Replicas）：分区中所有的副本</li>
+<li>ISR（In-Sync Replicas）：与Leader副本保持一定程度同步的副本</li>
+<li>OSR（Out-Sync Replicas）：与Leader副本消息滞后过多的副本</li>
 </ul>
-</li>
-<li>可达性分析，判断对象的引用链是否可达<ul>
-<li>从GC Root（虚拟机栈中引用的对象（栈帧中的本地变量表），方法区中的常量引用对象，方法区中的类静态属性引用的对象，本地方法栈JNI的引用对象，活跃线程的引用对象）开始搜索，直到搜索完毕的路径，被称为引用链</li>
-<li>如果一个对象到GC Root之间不存在引用链，那么表示这个对象已经不被任何地方引用，即视为”垃圾“</li>
-</ul>
-</li>
-</ul>
-<h3 id="Java中的四种引用"><a href="#Java中的四种引用" class="headerlink" title="Java中的四种引用"></a>Java中的四种引用</h3><h5 id="强引用"><a href="#强引用" class="headerlink" title="强引用"></a>强引用</h5><ul>
-<li>Person p = new Person();</li>
-<li>强引用的对象始终不会被回收，即使发生OOM，或者JVM停止运行</li>
-</ul>
-<h5 id="软引用"><a href="#软引用" class="headerlink" title="软引用"></a>软引用</h5><ul>
-<li>当内存空间不足时，GC才会回收软引用对象</li>
-<li>用于实现高速缓存</li>
-</ul>
-<h5 id="弱引用"><a href="#弱引用" class="headerlink" title="弱引用"></a>弱引用</h5><ul>
-<li>GC时，仅具有弱引用的对象就会被回收</li>
-</ul>
-<h5 id="虚引用"><a href="#虚引用" class="headerlink" title="虚引用"></a>虚引用</h5><ul>
-<li>任何时候，仅具有虚引用的对象都可能被回收</li>
-<li>必须和引用队列联合使用</li>
-</ul>
-<h3 id="垃圾回收算法"><a href="#垃圾回收算法" class="headerlink" title="垃圾回收算法"></a>垃圾回收算法</h3><ul>
-<li>Mark-Sweep，标记清除<ul>
-<li>标记，从根对象起，对存活的对象进行标记</li>
-<li>清除，清除未被标记为存活状态的对象</li>
-<li>会造成内存碎片化</li>
-</ul>
-</li>
-<li>Copying，复制<ul>
-<li>将内存分为相等大小的两块，对已使用的内存空间一次清理完毕</li>
-<li>清理完毕后只要移动堆顶指针，按顺序分配内存即可</li>
-<li>优点<ul>
-<li>不会造成内存碎片化</li>
-<li>顺序分配，简单高效</li>
-<li>适用于存活率低的场景</li>
-</ul>
-</li>
-<li>缺点<ul>
-<li>内存利用率过低</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Mark-Compact，标记整理<ul>
-<li>标记</li>
-<li>清除，移动所有存活的对象，并按照内存地址次序依次排列，然后将末端内存地址以后的内存全部回收</li>
-</ul>
-</li>
-<li>Generational Collection，分代回收<ul>
-<li>Minor GC，新生代GC，频繁发生，执行效率高<ul>
-<li>新生代<ul>
-<li>Eden</li>
-<li>From Survivor</li>
-<li>To Survivor</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Full GC / Major GC，老年代GC<ul>
-<li>触发Full GC的条件<ul>
-<li>老年代空间不足</li>
-<li>永久代空间不足（JDK7及以前）</li>
-<li>CMS GC时出现 promotion failed，concurrent mode failure</li>
-<li>Minor GC晋升到老年代的平均大小大于老年代的剩余空间</li>
-<li>System.gc()，<strong>建议</strong>JVM回收</li>
-<li>使用RMI来进行RPC或管理的JDK应用，每小时执行一次Full GC</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+<p>AR = ISR + OSR</p>
+<p>消息首先会被发送到Leader副本，接着Follower副本才能从Leader副本中拉取消息进行同步。</p>
+<p>当Leader副本发生故障时，会从Follower副本中选举出新的Leader副本，但是只有ISR集合中的副本能够被选举为Leader副本</p>
+<h4 id="HW"><a href="#HW" class="headerlink" title="HW"></a>HW</h4><p>High WaterMark，消费者最多能拉取到HW之前的消息</p>
+<h4 id="LEO"><a href="#LEO" class="headerlink" title="LEO"></a>LEO</h4><p>LogEndOffset，当前日志文件中下一条待写入消息的offset</p>
 
       
     </div>
@@ -495,11 +440,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/JVM/" rel="tag"># JVM</a>
-          
-            <a href="/tags/GC/" rel="tag"># GC</a>
-          
-            <a href="/tags/垃圾回收/" rel="tag"># 垃圾回收</a>
+            <a href="/tags/Kafka/" rel="tag"># Kafka</a>
           
         </div>
       
@@ -512,8 +453,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/03/22/Java中的线程/" rel="next" title="Java中的线程">
-                <i class="fa fa-chevron-left"></i> Java中的线程
+              <a href="/2019/04/22/C-学习笔记（一）/" rel="next" title="[C++]学习笔记（一）">
+                <i class="fa fa-chevron-left"></i> [C++]学习笔记（一）
               </a>
             
           </div>
@@ -521,10 +462,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/03/22/垃圾收集器/" rel="prev" title="垃圾收集器">
-                垃圾收集器 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -656,7 +593,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#一个对象如何成为”垃圾“"><span class="nav-number">1.</span> <span class="nav-text">一个对象如何成为”垃圾“</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#如何判断一个对象没有被引用"><span class="nav-number">2.</span> <span class="nav-text">如何判断一个对象没有被引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java中的四种引用"><span class="nav-number">3.</span> <span class="nav-text">Java中的四种引用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#强引用"><span class="nav-number">3.0.1.</span> <span class="nav-text">强引用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#软引用"><span class="nav-number">3.0.2.</span> <span class="nav-text">软引用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#弱引用"><span class="nav-number">3.0.3.</span> <span class="nav-text">弱引用</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#虚引用"><span class="nav-number">3.0.4.</span> <span class="nav-text">虚引用</span></a></li></ol></li></ol><li class="nav-item nav-level-3"><a class="nav-link" href="#垃圾回收算法"><span class="nav-number">4.</span> <span class="nav-text">垃圾回收算法</span></a></li></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Kafka-一个多分区、多副本的基于ZooKeeper协调的分布式消息系统"><span class="nav-number">1.</span> <span class="nav-text">Kafka - 一个多分区、多副本的基于ZooKeeper协调的分布式消息系统</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Kafka的基本组成"><span class="nav-number">1.1.</span> <span class="nav-text">Kafka的基本组成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重要概念-主题"><span class="nav-number">1.2.</span> <span class="nav-text">重要概念 - 主题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重要概念-分区"><span class="nav-number">1.3.</span> <span class="nav-text">重要概念 - 分区</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#分区的多副本机制"><span class="nav-number">1.3.1.</span> <span class="nav-text">分区的多副本机制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Kafka消费端的容灾能力"><span class="nav-number">1.3.2.</span> <span class="nav-text">Kafka消费端的容灾能力</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#副本"><span class="nav-number">1.3.3.</span> <span class="nav-text">副本</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HW"><span class="nav-number">1.3.4.</span> <span class="nav-text">HW</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LEO"><span class="nav-number">1.3.5.</span> <span class="nav-text">LEO</span></a></li></ol></li></ol></li></ol></div>
             
 
           </div>

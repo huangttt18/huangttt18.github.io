@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Kafka,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="KafkaProducer基本原理剖析">
+<meta name="keywords" content="Kafka">
+<meta property="og:type" content="article">
+<meta property="og:title" content="KafkaProducer基本原理解析">
+<meta property="og:url" content="http://huangttt18.github.io/2019/07/08/KafkaProducer基本原理解析/index.html">
+<meta property="og:site_name" content="Daniel&#39;s Blog">
+<meta property="og:description" content="KafkaProducer基本原理剖析">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-07-08T12:37:38.401Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="KafkaProducer基本原理解析">
+<meta name="twitter:description" content="KafkaProducer基本原理剖析">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://huangttt18.github.io/2019/07/08/KafkaProducer基本原理解析/">
+
+
+
+
+
+  <title>KafkaProducer基本原理解析 | Daniel's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Daniel's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-github">
+          <a href="/github/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-github"></i> <br>
+            
+            Github
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://huangttt18.github.io/2019/07/08/KafkaProducer基本原理解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Daniel">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Daniel's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">KafkaProducer基本原理解析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-08T20:35:49+08:00">
+                2019-07-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/消息中间件/" itemprop="url" rel="index">
+                    <span itemprop="name">消息中间件</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2.2k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  9
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="KafkaProducer基本原理剖析"><a href="#KafkaProducer基本原理剖析" class="headerlink" title="KafkaProducer基本原理剖析"></a>KafkaProducer基本原理剖析</h2><a id="more"></a>
+<h3 id="KafkaProducer的整体架构"><a href="#KafkaProducer的整体架构" class="headerlink" title="KafkaProducer的整体架构"></a>KafkaProducer的整体架构</h3><p>整个生产者客户端由两个线程协调运行，分别是主线程和Sender线程，其中主线程用于创建消息，Sender线程用于从ProducerAccumulator中获取消息并发送到Kafka中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 消息对应的Java类为ProducerRecord&lt;K, V&gt;</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProducerRecord</span>&lt;<span class="title">K</span>, <span class="title">V</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 消息所属的主题</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String topic;</span><br><span class="line">    <span class="comment">// 消息所属的分区</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Integer partition;</span><br><span class="line">    <span class="comment">// 消息的头部，可以用于设定一些与应用相关的信息</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Headers headers;</span><br><span class="line">    <span class="comment">// 消息的key，可以用于计算分区号，并对消息进行二次归类</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> K key;</span><br><span class="line">    <span class="comment">// 消息体，一般不为空，为空可表示一些特定的消息，例如`墓碑消息`</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> V value;</span><br><span class="line">    <span class="comment">// 消息的时间戳，包括CreateTime（消息的创建时间）和LogAppendTime（消息追加到日志文件的时间）</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Long timestamp;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ...省略...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>KafkaProducer是线程安全的，可以在多线程中共享单个KafkaProducer实例，也可以将KafkaProducer实例池化供其他线程使用。</p>
+</blockquote>
+<h4 id="KafkaProducer创建消息"><a href="#KafkaProducer创建消息" class="headerlink" title="KafkaProducer创建消息"></a>KafkaProducer创建消息</h4><h4 id="消息经过拦截器（非必须）、序列化器（必须）、分区器（非必须）的处理后将消息缓存到ProducerAccumulator中"><a href="#消息经过拦截器（非必须）、序列化器（必须）、分区器（非必须）的处理后将消息缓存到ProducerAccumulator中" class="headerlink" title="消息经过拦截器（非必须）、序列化器（必须）、分区器（非必须）的处理后将消息缓存到ProducerAccumulator中"></a>消息经过拦截器（非必须）、序列化器（必须）、分区器（非必须）的处理后将消息缓存到ProducerAccumulator中</h4><h5 id="消息拦截器"><a href="#消息拦截器" class="headerlink" title="消息拦截器"></a>消息拦截器</h5><p>一般用于在消息发送前做一些准备工作，或者用于在发送回调逻辑前做一些定制化的需求。要实现自定义拦截器，我们需要实现<code>ProducerInterceptor</code>接口，接口中包含3个方法：</p>
+<ul>
+<li><code>public ProducerRecord&lt;String, String&gt; onSend(ProducerRecord&lt;String, String&gt; producerRecord)</code>，该方法用于对消息做一些定制化的需求</li>
+<li><code>public void onAcknowledgement(RecordMetadata recordMetadata, Exception e)</code>，该方法会在消息被应答之前或者消息发送失败时调用生产者拦截器的<code>onAcknowledgement()</code>方法，该方法运行与Producer的I/O线程中，所以逻辑最好简单明了，否则会影响消息发送的速度</li>
+<li><code>public void close()</code>，该方法用于做一些资源释放的动作</li>
+</ul>
+<p>下面是自定义ProducerInterceptor的示例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.huangttt18.kafka.demo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.kafka.clients.producer.ProducerInterceptor;</span><br><span class="line"><span class="keyword">import</span> org.apache.kafka.clients.producer.ProducerRecord;</span><br><span class="line"><span class="keyword">import</span> org.apache.kafka.clients.producer.RecordMetadata;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> huangttt18  at 2019/7/6 18:09</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProducerInterceptorPrefix</span> <span class="keyword">implements</span> <span class="title">ProducerInterceptor</span>&lt;<span class="title">String</span>, <span class="title">String</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">long</span> sendSuccess = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">long</span> sendFailure = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ProducerRecord&lt;String, String&gt; <span class="title">onSend</span><span class="params">(ProducerRecord&lt;String, String&gt; producerRecord)</span> </span>&#123;</span><br><span class="line">        String modifiedValue = <span class="string">"prefix-"</span> + producerRecord.value();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ProducerRecord&lt;&gt;(producerRecord.topic(), producerRecord.partition(), producerRecord.timestamp(), producerRecord.key(), modifiedValue, producerRecord.headers());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAcknowledgement</span><span class="params">(RecordMetadata recordMetadata, Exception e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (e == <span class="keyword">null</span>) &#123;</span><br><span class="line">            sendSuccess ++;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            sendFailure ++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">double</span> successRatio = (<span class="keyword">double</span>) sendSuccess / (sendFailure + sendSuccess);</span><br><span class="line">        System.out.println(<span class="string">"[INFO] 发送成功率 = "</span> + String.format(<span class="string">"%f"</span>, successRatio * <span class="number">100</span>) + <span class="string">"%"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(Map&lt;String, ?&gt; map)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="序列化器"><a href="#序列化器" class="headerlink" title="序列化器"></a>序列化器</h5><p>生产者需要用序列化器将对象转换成字节数组才能通过网络发送给Kafka，对应的在消费者方，需要使用反序列化器将从Kafka中获取到的字节数组转换成相应的对象。</p>
+<p>实现自定义序列化器，需要实现Serializer接口，此接口包括3个方法：</p>
+<ul>
+<li><code>public void configure(Map&lt;String, ?&gt; configs, boolean isKey)</code>，该方法用于配置当前类</li>
+<li><code>public byte[] serializable(String topic, T data)</code>，该方法用于执行序列化操作</li>
+<li><code>public void close()</code>，该方法用于释放资源，一般是空方法，如果实现了此方法，必须保证它的幂等性，因为Kafka可能会多次调用该方法</li>
+</ul>
+<p>下面是自定义序列化器的示例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="meta">@AllArgsConstructor</span></span><br><span class="line"><span class="meta">@NoArgsConstructor</span></span><br><span class="line"><span class="meta">@Builder</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Company</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String address;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义序列化器</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CompanySerializer</span> <span class="keyword">implements</span> <span class="title">Serializer</span>&lt;<span class="title">Company</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(Map&lt;String, ?&gt; map, <span class="keyword">boolean</span> b)</span> </span>&#123;</span><br><span class="line">		<span class="comment">// 该方法在创建KafkaProducer实例的时候被调用，可以用于确定编码类型，一般默认的编码为UTF-8</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">byte</span>[] serialize(String s, Company company) &#123;</span><br><span class="line">        <span class="keyword">if</span> (company == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">byte</span>[] name, address;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 如果name不为空，则转换成byte[]</span></span><br><span class="line">            <span class="keyword">if</span> (company.getName() != <span class="keyword">null</span>) &#123;</span><br><span class="line">                name = company.getName().getBytes(<span class="string">"UTF-8"</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// name为空，设置name为空的byte[]</span></span><br><span class="line">                name = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">0</span>];</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (company.getAddress() != <span class="keyword">null</span>) &#123;</span><br><span class="line">                address = company.getAddress().getBytes(<span class="string">"UTF-8"</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                address = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">0</span>];</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            ByteBuffer byteBuffer = ByteBuffer.allocate(<span class="number">4</span> + <span class="number">4</span> + name.length + address.length);</span><br><span class="line">            byteBuffer.putInt(name.length);</span><br><span class="line">            byteBuffer.put(name);</span><br><span class="line">            byteBuffer.putInt(address.length);</span><br><span class="line">            byteBuffer.put(address);</span><br><span class="line">            <span class="keyword">return</span> byteBuffer.array();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (UnsupportedEncodingException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">0</span>];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="分区器"><a href="#分区器" class="headerlink" title="分区器"></a>分区器</h5><p>如果创建ProducerRecord时指定了partition字段，那么分区器就不是必须的了，如果没有指定，那么就需要依赖分区器来计算分区号</p>
+<p>实现自定义分区器需要实现Partitioner接口，该接口包含了2个方法：</p>
+<ul>
+<li><code>public int partition(String topic, Object key, byte[] keyBytes, Object value, byte[] valueBytes, Cluster cluster)</code>，该方法用于计算分区号。<ul>
+<li>分区号是依赖key来计算的，如果<code>key != null</code>，那么分区器会对key进行哈希（murmurHash2算法）来计算分区号，拥有相同key的消息会被写入同一个分区，如果<code>key == null</code>，那么消息会以<code>轮询</code>的方式发送到主题内的各个可用分区</li>
+<li>如果<code>key != null</code>，那么计算得到的分区号为<code>所有分区</code>中的任意一个</li>
+<li>如果<code>key == null</code>，那么计算得到的分区号仅为<code>可用分区</code>中的任意一个</li>
+</ul>
+</li>
+<li><code>public void close()</code></li>
+</ul>
+<p>下面是自定义分区器的示例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoPartitioner</span> <span class="keyword">implements</span> <span class="title">Partitioner</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> AtomicInteger counter = <span class="keyword">new</span> AtomicInteger(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">partition</span><span class="params">(String s, Object o, <span class="keyword">byte</span>[] bytes, Object o1, <span class="keyword">byte</span>[] bytes1, Cluster cluster)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 获取当前topic的分区信息</span></span><br><span class="line">        List&lt;PartitionInfo&gt; partitions = cluster.partitionsForTopic(s);</span><br><span class="line">        <span class="keyword">int</span> numPartitions = partitions.size();</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> == bytes) &#123;</span><br><span class="line">            <span class="keyword">return</span> counter.getAndIncrement() % numPartitions;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> Utils.toPositive(Utils.murmur2(bytes)) % numPartitions;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">configure</span><span class="params">(Map&lt;String, ?&gt; map)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>消息经过以上的一系列处理之后，会被缓存到<code>RecordAccumulator</code>中的<code>双端队列（Deque）</code>中，每个RecordAccumulator内部分别为每个分区维护了一个双端队列，队列的内容为<code>ProducerBatch</code>，即Deque&lt;ProducerBatch>，消息写入时被追加到队列的尾部，Sender线程从队列的头部读取消息</p>
+<h4 id="Sender线程从ProducerAccumulator获取缓存的消息之后对消息进行进一步的处理之后将消息发送到Kafka"><a href="#Sender线程从ProducerAccumulator获取缓存的消息之后对消息进行进一步的处理之后将消息发送到Kafka" class="headerlink" title="Sender线程从ProducerAccumulator获取缓存的消息之后对消息进行进一步的处理之后将消息发送到Kafka"></a>Sender线程从ProducerAccumulator获取缓存的消息之后对消息进行进一步的处理之后将消息发送到Kafka</h4><p>每个ProducerBatch中都包含了1个或者N个ProducerRecord。</p>
+<p>每当一条新的ProducerRecord进入RecordAccumulator时，会先寻找与消息分区所对应的双端队列，接着从双端队列的<code>尾部</code>获取一个ProducerBatch，如果没有则新建，查看ProducerBatch是否还能写入这个ProducerRecord，如果可以则写入，如果不能则创建一个新的ProducerBatch，在新建ProducerBatch时会检查这条消息的大小是否超过batch.size参数，如果不超过，就可以创建batch.size大小的ProducerBatch，如果超过就创建消息大小的ProducerBatch，这段内存区域不会被复用。</p>
+<p>Sender线程从RecordAccumulator中获取缓存的消息后，会将原本的<code>&lt;分区, Deque&lt;ProducerBatch\&gt;\&gt;</code>的保存形式转换为&lt;Node, List&lt;ProducerBatch>>形式，Node代表Kafka集群中的Broker节点</p>
+<p>接着再转换为&lt;Node, Request>形式，这样就可以将请求发送给各个Node了，Reuqest指的是Kafka的各种协议请求</p>
+<p>请求在从Sender线程发往Kafka之前还会以Map&lt;NodeId, Deque&lt;Request>>的形式保存到<code>InFlightRequests</code>，InFlightRequests用于缓存了已经发送出去但是还没有收到响应的请求</p>
+<h5 id="Kafka消息的发送分为三种模式"><a href="#Kafka消息的发送分为三种模式" class="headerlink" title="Kafka消息的发送分为三种模式"></a>Kafka消息的发送分为三种模式</h5><ul>
+<li>发后即忘（Fire-And-Forget），只管发送消息而不管消息是否到达</li>
+<li>同步（Sync）</li>
+<li>异步（ASync）</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 发后即忘</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    Properties props = initConfig();</span><br><span class="line">   	KafkaProducer&lt;String, String&gt; producer = <span class="keyword">new</span> KafkaProducer&lt;&gt;(props);</span><br><span class="line">    ProducerRecord&lt;String, String&gt; record = <span class="keyword">new</span> ProducerRecord&lt;&gt;(topic, msg);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        producer.send(record);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 同步</span></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    Future&lt;RecordMetaData&gt; future = producer.send(record);</span><br><span class="line">    RecordMetaData metaData = future.get();</span><br><span class="line">    System.out.println(metaData.getTopic() + <span class="string">"-"</span> + metaData.partition() + <span class="string">":"</span> + metaData.offset());</span><br><span class="line">&#125; <span class="keyword">catch</span> (ExecutionException | InterruptedException e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 异步，在send()方法中指定一个回调函数，Kafka在返回响应时调用该函数来实现异步的发送确认</span></span><br><span class="line"><span class="comment">// metaData和exception只能是一个为null另一个不为null</span></span><br><span class="line">producer.send(record, <span class="keyword">new</span> Callback() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCompletion</span><span class="params">(RecordMetaData metaData, Exception exception)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (exception != <span class="keyword">null</span>) &#123;</span><br><span class="line">            exception.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(metaData.getTopic() + <span class="string">"-"</span> + metaData.partition() + <span class="string">":"</span> + metaData.offset());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// RecordMetaData对象</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">RecordMetadata</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Partition value for record without partition assigned</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> UNKNOWN_PARTITION = -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 消息的偏移量</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span> offset;</span><br><span class="line">    <span class="comment">// The timestamp of the message.</span></span><br><span class="line">    <span class="comment">// If LogAppendTime is used for the topic, the timestamp will be the timestamp returned by the broker.</span></span><br><span class="line">    <span class="comment">// If CreateTime is used for the topic, the timestamp is the timestamp in the corresponding ProducerRecord if the</span></span><br><span class="line">    <span class="comment">// user provided one. Otherwise, it will be the producer local time when the producer record was handed to the</span></span><br><span class="line">    <span class="comment">// producer.</span></span><br><span class="line">    <span class="comment">// 消息的时间戳</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">long</span> timestamp;</span><br><span class="line">    <span class="comment">// 消息key序列化后的长度</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> serializedKeySize;</span><br><span class="line">    <span class="comment">// 消息value序列化后的长度</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> serializedValueSize;</span><br><span class="line">    <span class="comment">// 主题分区</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> TopicPartition topicPartition;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> Long checksum;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ...省略...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Kafka/" rel="tag"># Kafka</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/06/Kafka集群搭建/" rel="next" title="Kafka集群搭建">
+                <i class="fa fa-chevron-left"></i> Kafka集群搭建
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Daniel</p>
+              <p class="site-description motion-element" itemprop="description">记录我的学习路程</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">23</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#KafkaProducer基本原理剖析"><span class="nav-number">1.</span> <span class="nav-text">KafkaProducer基本原理剖析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#KafkaProducer的整体架构"><span class="nav-number">1.1.</span> <span class="nav-text">KafkaProducer的整体架构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#KafkaProducer创建消息"><span class="nav-number">1.1.1.</span> <span class="nav-text">KafkaProducer创建消息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#消息经过拦截器（非必须）、序列化器（必须）、分区器（非必须）的处理后将消息缓存到ProducerAccumulator中"><span class="nav-number">1.1.2.</span> <span class="nav-text">消息经过拦截器（非必须）、序列化器（必须）、分区器（非必须）的处理后将消息缓存到ProducerAccumulator中</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#消息拦截器"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">消息拦截器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#序列化器"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">序列化器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#分区器"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">分区器</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Sender线程从ProducerAccumulator获取缓存的消息之后对消息进行进一步的处理之后将消息发送到Kafka"><span class="nav-number">1.1.3.</span> <span class="nav-text">Sender线程从ProducerAccumulator获取缓存的消息之后对消息进行进一步的处理之后将消息发送到Kafka</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Kafka消息的发送分为三种模式"><span class="nav-number">1.1.3.1.</span> <span class="nav-text">Kafka消息的发送分为三种模式</span></a></li></ol></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Daniel</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">29.9k</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
